@@ -976,14 +976,14 @@ _CGB_PokedexUnownMode:
 	jp _CGB_FinishLayout
 
 _CGB_BillsPC:
-	ld de, wBGPals1
-	ld hl, .MenuPalette
+	ld de, wBGPals1 + 4 palettes
+	ld hl, .BoxContent
 	call LoadHLPaletteIntoDE
 
 	ld a, [wCurPartySpecies]
 	and a
 	jr nz, .GetMonPalette
-	ld hl, .OrangePalette
+	ld hl, .Outline
 	call LoadHLPaletteIntoDE
 	jr .Resume
 
@@ -996,31 +996,24 @@ _CGB_BillsPC:
 .Resume:
 	call WipeAttrMap
 
-	hlcoord 1, 4, wAttrMap
-	lb bc, 7, 7
-	ld a, $1
-	call FillBoxCGB
-
-	call InitPartyMenuOBPals
-
 	jp _CGB_FinishLayout
 
-.MenuPalette:
+.BoxContent:
 if !DEF(MONOCHROME)
-	RGB 31, 31, 31
-	RGB 31, 20, 10
+	RGB 31, 29, 24
+	RGB 31, 26, 10
 	RGB 26, 10, 06
 	RGB 00, 00, 00
 else
 	MONOCHROME_RGB_FOUR
 endc
 
-.OrangePalette:
+.Outline:
 if !DEF(MONOCHROME)
-	RGB 31, 15, 00
-	RGB 23, 12, 00
-	RGB 15, 07, 00
-	RGB 00, 00, 00
+	RGB 31, 31, 31
+	RGB 31, 29, 24
+	RGB 31, 26, 10
+	RGB 28, 23, 08
 else
 	MONOCHROME_RGB_FOUR
 endc

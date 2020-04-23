@@ -1651,7 +1651,7 @@ CalcPkmnStats:
 ; Calculates all 6 Stats of a Pkmn
 ; b: Hyper Training (bit 7-2), apply EVs (bit 0)
 ; 'c' counts from 1-6 and points with 'wBaseStats' to the base value
-; hl is the path to the EVs
+; hl is the path to the EVs - 1
 ; de is a pointer where the 6 stats are placed
 
 	ld c, $0

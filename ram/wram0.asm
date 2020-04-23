@@ -867,7 +867,12 @@ wBillsPC_BackupCursorPosition:: db
 wBillsPC_BackupLoadedBox:: db
 wBillsPC_MonHasMail:: db
 wBillsPCDataEnd::
-
+NEXTU
+wBillsPC_CurMonPals:: ds 2 * 2 * 4 ; 2 bytes per color, 2 colors, 4 mons
+wBillsPC_MonPals1:: ds 2 * 2 * 4
+wBillsPC_MonPals2:: ds 2 * 2 * 4
+wBillsPC_MonPals3:: ds 2 * 2 * 4
+wBillsPC_MonPals4:: ds 2 * 2 * 4
 NEXTU
 ; link data
 wLinkData::
@@ -1000,7 +1005,9 @@ wWhichIndexSet:: db
 wScrollingMenuCursorPosition:: db
 wWindowStackSize:: db
 
-	ds 8
+wPalColor:: db
+
+	ds 7
 
 ; menu header
 wMenuHeader::
