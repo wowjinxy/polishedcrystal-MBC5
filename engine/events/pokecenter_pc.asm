@@ -286,9 +286,28 @@ UnknownText_0x157cc:
 	text_jump UnknownText_0x1c1368
 	text_end
 
+ClearPCItemScreen:
+	call DisableSpriteUpdates
+	xor a
+	ldh [hBGMapMode], a
+	call ClearBGPalettes
+	call ClearSprites
+	hlcoord 0, 0
+	ld bc, SCREEN_HEIGHT * SCREEN_WIDTH
+	ld a, " "
+	rst ByteFill
+	hlcoord 0, 0
+	lb bc, 10, 18
+	call TextBox
+	hlcoord 0, 12
+	lb bc, 4, 18
+	call TextBox
+	call ApplyAttrAndTilemapInVBlank
+	jp SetPalettes ; load regular palettes?
+
 KrisWithdrawItemMenu:
 	call LoadStandardMenuDataHeader
-	farcall ClearPCItemScreen
+	call ClearPCItemScreen
 .loop
 	call PCItemsJoypad
 	jr c, .quit
@@ -346,7 +365,7 @@ KrisWithdrawItemMenu:
 
 KrisTossItemMenu:
 	call LoadStandardMenuDataHeader
-	farcall ClearPCItemScreen
+	call ClearPCItemScreen
 .loop
 	call PCItemsJoypad
 	jr c, .quit
