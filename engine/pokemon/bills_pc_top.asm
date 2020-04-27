@@ -114,103 +114,112 @@ UseBillsPC:
 	call LoadStandardMenuDataHeader
 	call ClearTileMap
 	call ClearPalettes
+	farcall WipeAttrMap
+
+	ld b, BANK(.Tiles)
+	ld de, .Tiles
+	ld hl, vTiles2 tile $31
+	ld c, 15
+	call Get2bpp
+
+	; Reserve 4 blank tiles for empty slots
+	ld a, 1
+	ldh [rVBK], a
+	ld hl, vTiles3
+	ld de, vTiles5 tile $7f
+	push hl
+	push hl
+	ld c, 1
+	call Get2bpp
+	pop de
+	pop hl
+	ld bc, 1 tiles
+	add hl, bc
+	push hl
+	push de
+	ld c, 1
+	call Get2bpp
+	pop de
+	pop hl
+	ld bc, 1 tiles
+	add hl, bc
+	ld c, 2
+	call Get2bpp
+	xor a
+	ld [rVBK], a
+
+	ld a, 1
+	ldh [rVBK], a
+	call SetPartyIcons
+	call SetBoxIcons
+	xor a
+	ldh [rVBK], a
+
+	; Poképic
+	hlcoord 0, 0
+	farcall PlaceFrontpicAtHL
+
+	; Storage box
+	hlcoord 7, 4
+	lb bc, 12, 11
+	ld de, .BoxTiles
+	call .Box
+
+	; Seperator between box name and content
+	hlcoord 7, 6
+	lb bc, $3e, 11
+	call .SpecialRow
+
+	; Party box
+	hlcoord 0, 9
+	lb bc, 7, 5
+	ld de, .PartyTiles
+	call .Box
+
+	; Party label borders
+	hlcoord 0, 10
+	lb bc, $36, 5
+	call .SpecialRow
+
+	; Party label text
+	hlcoord 2, 9
+	ld a, $38
+	ld [hli], a
+	inc a
+	ld [hli], a
+	inc a
+	ld [hli], a
+	inc a
+	hlcoord 2, 10
+	ld [hli], a
+	inc a
+	ld [hli], a
+	inc a
+	ld [hli], a
+
+	; Write icon tilemaps
+	; Party
+	hlcoord 1, 11
+	lb bc, 3, 2
+	lb de, $80, 2 | TILE_BANK
+	call .WriteIconTilemap
+
+	; Storage
+	hlcoord 8, 7
+	lb bc, 5, 4
+	lb de, $98, 4 | TILE_BANK
+	call .WriteIconTilemap
+
 	ld a, CGB_BILLS_PC
 	call GetCGBLayout
 	call SetPalettes
 
-	ld b, BANK(.Tiles)
-	ld de, .Tiles
-	ld hl, vTiles2 tile $00
-	ld c, 10
-	call Get2bpp
-
-	; Set up attributes
-	hlcoord 8, 0, wAttrMap
-	lb bc, 18, 12
-	ld a, 5
-	farcall FillBoxCGB
-	hlcoord 0, 9, wAttrMap
-	lb bc, 6, 20
-	farcall FillBoxCGB
-	hlcoord 9, 0, wAttrMap
-	lb bc, 2, 11
-	dec a
-	farcall FillBoxCGB
-	hlcoord 9, 4, wAttrMap
-	lb bc, 10, 11
-	farcall FillBoxCGB
-	hlcoord 9, 16, wAttrMap
-	lb bc, 2, 11
-	farcall FillBoxCGB
-	hlcoord 0, 10, wAttrMap
-	lb bc, 4, 8
-	farcall FillBoxCGB
-	hlcoord 8, 2, wAttrMap
-	ld a, Y_FLIP | 5
-	ld c, 12
-	rst ByteFill
-	hlcoord 0, 14, wAttrMap
-	ld c, 20
-	rst ByteFill
-
-	; Set up box graphics
-	xor a
-	hlcoord 8, 0
-	ld d, 18
-	ld bc, SCREEN_WIDTH
-.loop
-	ld [hl], a
-	add hl, bc
-	dec d
-	jr nz, .loop
-	hlcoord 8, 10
-	ld d, 4
-.loop2
-	ld [hl], 9
-	add hl, bc
-	dec d
-	jr nz, .loop2
-
-	inc a
-	hlcoord 8, 2
-	ld [hl], a
-	hlcoord 8, 3
-	ld [hl], a
-	hlcoord 8, 15
-	ld [hl], a
-	inc a
-	hlcoord 9, 2
-	ld bc, 11
-	rst ByteFill
-	hlcoord 9, 3
-	ld c, 11
-	rst ByteFill
-	hlcoord 0, 14
-	ld c, 20
-	rst ByteFill
-	hlcoord 9, 15
-	ld c, 11
-	rst ByteFill
-	hlcoord 8, 14
-	inc a
-	ld [hl], a
-	hlcoord 0, 9
-	ld c, 8
-	inc a
-	rst ByteFill
-
-	hlcoord 5, 9
-	ld b, a
-.loop3
-	inc a
-	ld [hli], a
-	dec b
-	jr nz, .loop3
-
 	ld b, 2
 	call SafeCopyTilemapAtOnce
 
-	hlcoord 9, 1
+	call ManageBoxes
+
+	hlcoord 0, 8
 	ld de, .TestStr
 	call PlaceString
 
@@ -222,102 +231,366 @@ UseBillsPC:
 	call DelayFrames
 	ret
 .TestStr
-	db "AA AA AA AA@"
+	db "100@"
 
-.Tiles:
-	dw `00032211
-	dw `00032211
-	dw `00032211
-	dw `00032211
-	dw `00032211
-	dw `00032211
-	dw `00032211
-	dw `00032211
+.Box:
+; draws a box with tiles and attributes
+	push bc
+	push hl
+	call CreateBoxBorders
+	pop hl
+	ld bc, wAttrMap - wTileMap
+	add hl, bc
+	pop bc
+	ld de, .BoxAttr
+	jp CreateBoxBorders
+
+.BoxTiles:
+	db $33, $32, $33 ; top
+	db $31, $7f, $31 ; middle
+	db $33, $32, $33 ; bottom
+.PartyTiles:
+	db $35, $34, $35 ; top
+	db $31, $7f, $31 ; middle
+	db $33, $32, $33 ; bottom
+.BoxAttr:
+	db 1, 1, 1 | X_FLIP ; top
+	db 1, 2 | TILE_BANK, 1 | X_FLIP ; middle
+	db 1 | Y_FLIP, 1 | Y_FLIP, 1 | X_FLIP | Y_FLIP ; bottom
+
+.SpecialRow:
+; draws a nonstandard box outline
+	ld a, b
+	ld [hli], a
+	inc a
+	ld b, 0
+	push bc
+	push hl
+	rst ByteFill
+	dec a
+	ld [hl], a
+	pop hl
+	ld bc, wAttrMap - wTileMap
+	add hl, bc
+	pop bc
+	ld a, 1
+	rst ByteFill
+	ret
+
+.WriteIconTilemap:
+; writes icon tile+attr data for b rows, c cols starting from hlcoord, tile a
+	ld a, d
+.tile_row
+	push bc
+	push de
+	push hl
+.tile_col
+	call .icon
+	dec c
+	jr nz, .tile_col
+	pop hl
+	ld bc, SCREEN_WIDTH * 2
+	add hl, bc
+	pop de
+	pop bc
+	dec b
+	jr nz, .tile_row
+	ret
+
+.icon
+	push bc
+	ld [hli], a
+	inc a
+	ld [hld], a
+	inc a
+	ld bc, SCREEN_WIDTH
+	add hl, bc
+	ld [hli], a
+	inc a
+	ld [hld], a
+	inc a
+	ld bc, -SCREEN_WIDTH + (wAttrMap - wTileMap)
+	add hl, bc
+	ld [hl], e
+	inc hl
+	ld [hl], e
+	ld bc, SCREEN_WIDTH - 1
+	add hl, bc
+	ld [hl], e
+	inc hl
+	ld [hl], e
+	inc e
+	ld bc, -SCREEN_WIDTH + 2 + (wTileMap - wAttrMap)
+	add hl, bc
+	pop bc
+	ret
+
+.Tiles
+BillsPC_Tiles:
+	dw `01223333
+	dw `01223333
+	dw `01223333
+	dw `01223333
+	dw `01223333
+	dw `01223333
+	dw `01223333
+	dw `01223333
 
 	dw `00000000
-	dw `00000333
-	dw `00003222
-	dw `00032222
-	dw `00032221
-	dw `00032211
-	dw `00032211
-	dw `00032211
+	dw `11111111
+	dw `22222222
+	dw `22222222
+	dw `33333333
+	dw `33333333
+	dw `33333333
+	dw `33333333
 
 	dw `00000000
+	dw `00011111
+	dw `00122222
+	dw `01222222
+	dw `01222333
+	dw `01223333
+	dw `01223333
+	dw `01223333
+
+	dw `00000000
+	dw `11111111
+	dw `22222222
+	dw `22222222
+	dw `22222222
+	dw `22222222
+	dw `22222222
+	dw `22222222
+
+	dw `00000000
+	dw `00011111
+	dw `00122222
+	dw `01222222
+	dw `01222222
+	dw `01222222
+	dw `01222222
+	dw `01222222
+
+	dw `01222222
+	dw `01222222
+	dw `01222222
+	dw `01222222
+	dw `01222333
+	dw `01223333
+	dw `01223333
+	dw `01223333
+
+	dw `22222222
+	dw `22222222
+	dw `22222222
+	dw `22222222
+	dw `33333333
+	dw `33333333
+	dw `33333333
+	dw `33333333
+
+	dw `00000000
+	dw `11111111
+	dw `22222222
+	dw `22222222
+	dw `23332222
+	dw `23223222
+	dw `23223223
+	dw `23332232
+
+	dw `00000000
+	dw `11111111
+	dw `22222222
+	dw `22222222
+	dw `22222222
+	dw `22222222
+	dw `33232323
+	dw `23233222
+
+	dw `00000000
+	dw `11111111
+	dw `22222222
+	dw `22222222
+	dw `22222222
+	dw `32222222
+	dw `33232232
+	dw `32232232
+
+	dw `23222232
+	dw `23222223
+	dw `22222222
+	dw `22222222
+	dw `33333333
+	dw `33333333
+	dw `33333333
+	dw `33333333
+
+	dw `33232222
+	dw `23232222
+	dw `22222222
+	dw `22222222
+	dw `33333333
+	dw `33333333
+	dw `33333333
+	dw `33333333
+
+	dw `32223332
+	dw `33222232
+	dw `22233322
+	dw `22222222
+	dw `33333333
+	dw `33333333
+	dw `33333333
+	dw `33333333
+
+	dw `01223333
+	dw `01222333
+	dw `01222222
+	dw `01222222
+	dw `01111111
+	dw `01222222
+	dw `01222222
+	dw `01222333
+
+	dw `33333333
 	dw `33333333
 	dw `22222222
 	dw `22222222
 	dw `11111111
-	dw `11111111
-	dw `11111111
-	dw `11111111
-
-	dw `00000000
+	dw `22222222
+	dw `22222222
 	dw `33333333
-	dw `22333222
-	dw `22232222
-	dw `22232221
-	dw `12232211
-	dw `12232211
-	dw `12232211
 
-	dw `00000000
-	dw `33333333
-	dw `22222222
-	dw `22222222
-	dw `11111111
-	dw `11111111
-	dw `11111111
-	dw `11111111
-
-	dw `00000000
-	dw `33333333
-	dw `22222222
-	dw `22222220
-	dw `11122220
-	dw `11112220
-	dw `11111220
-	dw `11111122
-
-	dw `00000000
-	dw `33333333
-	dw `22222222
-	dw `02220220
-	dw `20202020
-	dw `02200020
-	dw `22202020
-	dw `22222222
-
-	dw `00000000
-	dw `33333333
-	dw `22222222
-	dw `02200020
-	dw `20220220
-	dw `02220222
-	dw `20220222
-	dw `22222222
-
-	dw `00032211
-	dw `33332211
-	dw `22232211
-	dw `20232211
-	dw `20232211
-	dw `02232211
-	dw `02232211
-	dw `22232211
-
-	dw `12232211
-	dw `12232211
-	dw `12232211
-	dw `12232211
-	dw `12232211
-	dw `12232211
-	dw `12232211
-	dw `12232211
 
 
 BillsPC_SeeYa:
 	scf
+	ret
+
+BillsPC_BlankTiles:
+	ld de, vTiles3 tile $00
+	ld bc, 4 tiles
+.loop
+	push hl
+	push de
+	push bc
+	push af
+	ld c, 4
+	call Get2bpp
+	pop af
+	pop bc
+	pop de
+	pop hl
+	add hl, bc
+	dec a
+	jr nz, .loop
+	ret
+
+SetPartyIcons:
+; Writes party list
+	; Blank current list
+	xor a
+	ld hl, wBillsPC_PartyList
+	ld bc, PARTY_LENGTH * 2
+	rst ByteFill
+
+	ld hl, vTiles4 tile $00
+	ld a, PARTY_LENGTH
+	call BillsPC_BlankTiles
+
+	; Write party members
+	ld a, [wPartyCount]
+	ld b, a
+	ld de, wPartyMons - (wPartyMon2 - wPartyMon1Form)
+	ld hl, wBillsPC_PartyList
+	ld c, $80
+.loop
+	ld a, wPartyMon2 - wPartyMon1Form
+	call .insert
+	ld [wCurIcon], a
+	ld a, wPartyMon1Form - wPartyMon1
+	call .insert
+	ld [wCurIconForm], a
+	ld a, c
+	push hl
+	push de
+	push bc
+	farcall GetStorageIcon_a
+	pop bc
+	pop de
+	pop hl
+	ld a, c
+	add 4
+	ld c, a
+	dec b
+	jr nz, .loop
+	ret
+
+.insert
+	; de = de + a
+	add e
+	ld e, a
+	adc d
+	sub e
+	ld d, a
+
+	ld a, [de]
+	ld [hli], a
+	ret
+
+SetBoxIcons:
+	; Blank current list
+	xor a
+	ld hl, wBillsPC_BoxList
+	ld bc, MONS_PER_BOX * 2
+	rst ByteFill
+
+	ld hl, vTiles4 tile $18
+	ld a, MONS_PER_BOX
+	call BillsPC_BlankTiles
+
+	; Write box members
+	ld a, [wCurBox]
+	inc a
+	ld b, a
+	ld c, 1
+	ld hl, wBillsPC_BoxList
+	ld d, 20
+	ld e, $98
+.loop
+	call GetStorageBoxMon
+	jr z, .empty
+	ld a, [wBufferMon]
+	ld [wCurIcon], a
+	ld [hli], a
+	ld a, [wBufferMonForm]
+	ld [wCurIconForm], a
+	ld a, e
+	push hl
+	push de
+	push bc
+	farcall GetStorageIcon_a
+	pop bc
+	pop de
+	pop hl
+	jr .next
+.empty
+.next
+	ld a, e
+	add 4
+	ld e, a
+	inc c
+	dec d
+	jr nz, .loop
+	ret
+
+ManageBoxes:
+; Main box management function
+	; Load active box
+	call DisplayBox
+
+DisplayBox:
 	ret
 
 BillsPC_MovePKMNMenu:
@@ -500,6 +773,53 @@ SetBoxPointer:
 .got_flag_setup
 	predef FlagPredef
 	jp PopBCDEHL
+
+GetStorageBoxMon:
+; Reads storage bank+entry from box b slot c and put it in wBufferMon.
+; If there is a checksum error, put Bad Egg data in wBufferMon instead.
+; Returns c in case of a Bad Egg, z if the requested mon doesn't exist,
+; nz|nc otherwise.
+	; TODO: DON'T READ LEGACY SAVE DATA
+	push hl
+	push de
+	push bc
+	dec b
+	dec c
+	ld a, b
+	sub 7
+	ld d, BANK(sBox1)
+	jr c, .got_save_bank
+	ld b, a
+	ld d, BANK(sBox8)
+.got_save_bank
+	ld a, d
+	call GetSRAMBank
+	ld d, b
+	ld e, c
+	ld bc, sBox2 - sBox1
+	ld a, d
+	ld hl, sBox1
+	rst AddNTimes
+	ld a, e
+	cp [hl]
+	jr c, .not_empty
+	xor a
+	jr .done
+.not_empty
+	ld bc, sBox1Mons - sBox1
+	add hl, bc
+	ld bc, BOXMON_STRUCT_LENGTH
+	ld a, e
+	rst AddNTimes
+	ld de, wBufferMon
+	ld bc, BOXMON_STRUCT_LENGTH
+	rst CopyBytes
+	or 1
+.done
+	pop bc
+	pop de
+	pop hl
+	jp CloseSRAM
 
 GetStorageMon:
 ; Reads storage bank d, entry e and put it in wBufferMon.

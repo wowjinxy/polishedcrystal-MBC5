@@ -873,6 +873,10 @@ wBillsPC_MonPals1:: ds 2 * 2 * 4
 wBillsPC_MonPals2:: ds 2 * 2 * 4
 wBillsPC_MonPals3:: ds 2 * 2 * 4
 wBillsPC_MonPals4:: ds 2 * 2 * 4
+
+; Species lists
+wBillsPC_PartyList:: ds 6 * 2
+wBillsPC_BoxList:: ds 20 * 2
 NEXTU
 ; link data
 wLinkData::
