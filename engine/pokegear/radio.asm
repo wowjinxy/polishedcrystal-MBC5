@@ -17,8 +17,7 @@ PlayRadioShow:
 .ok
 ; Jump to the currently loaded station.  The index to which we need to jump is in wCurRadioLine.
 	ld a, [wCurRadioLine]
-	ld hl, RadioJumptable
-	jp JumpTable
+	call StackJumpTable
 
 RadioJumptable:
 	dw OaksPkmnTalk1  ; $00
@@ -630,7 +629,8 @@ PlaceRadioString:
 	ld [wCurRadioLine], a
 	ld a, 100
 	ld [wRadioTextDelay], a
-	jp _PlaceString
+	rst PlaceString
+	ret
 
 CopyBottomLineToTopLine:
 	hlcoord 0, 15
@@ -647,7 +647,8 @@ ClearBottomLine:
 	hlcoord 1, 16
 	ld bc, SCREEN_WIDTH - 2
 	ld a, " "
-	jp _ByteFill
+	rst ByteFill
+	ret
 
 PokedexShow1:
 	call StartRadioStation

@@ -25,9 +25,9 @@ ROM0
 	"timer"
 	org $0058
 	"serial"
-	org $0060
-	"joypad"
-	org $0061
+;	org $0060
+;	"joypad"
+	org $005b
 	"High Home"
 	org $0100
 	"Header"
@@ -194,7 +194,6 @@ ROMX $3A
 	"Audio"
 
 ROMX $3C
-	"Sound Effects"
 	"Cries"
 
 ROMX $41
@@ -205,9 +204,6 @@ ROMX $42
 
 ROMX $48
 	"Pic Pointers"
-
-ROMX $5E
-	"Crystal Sound Effects"
 
 VRAM $0
 	"VRAM0"

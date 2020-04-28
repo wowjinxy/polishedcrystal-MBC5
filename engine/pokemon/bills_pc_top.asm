@@ -50,10 +50,10 @@ UseBillsPC:
 	call Get2bpp
 
 	; Colored gender symbols are housed in misc battle gfx stuff
-	ld de, BattleExtrasGFX
-	ld hl, vTiles2 tile $40
+	ld hl, BattleExtrasGFX
+	ld de, vTiles2 tile $40
 	lb bc, BANK(BattleExtrasGFX), 32
-	call Get2bpp
+	call DecompressRequest2bpp
 
 	; Default cursor position
 	ld a, $12 ; top left of storage

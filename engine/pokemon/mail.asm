@@ -355,7 +355,8 @@ MailboxPC_PrintMailAuthor:
 	ld a, [wMenuSelection]
 	call MailboxPC_GetMailAuthor
 	pop hl
-	jp _PlaceString
+	rst PlaceString
+	ret
 
 MailboxPC:
 	xor a
@@ -399,9 +400,7 @@ MailboxPC:
 	ret c
 	ld a, [wMenuCursorY]
 	dec a
-	ld hl, .JumpTable
-	call JumpTable
-	ret
+	call StackJumpTable
 
 .JumpTable:
 	dw .ReadMail

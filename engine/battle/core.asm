@@ -440,16 +440,9 @@ CheckSafariBattleOver:
 	ret
 
 CheckLockedIn:
-	ld a, BATTLE_VARS_SUBSTATUS1
-	call GetBattleVarAddr
-	bit SUBSTATUS_ROLLOUT, [hl]
-	ret nz
-	inc hl
-	inc hl
-	ld a, [hli]
-	and 1 << SUBSTATUS_CHARGED | 1 << SUBSTATUS_RAMPAGE
-	ret nz
-	bit SUBSTATUS_RECHARGE, [hl]
+	ld a, BATTLE_VARS_SUBSTATUS3
+	call GetBattleVar
+	and 1 << SUBSTATUS_RECHARGE | 1 << SUBSTATUS_CHARGED | 1 << SUBSTATUS_RAMPAGE | 1 << SUBSTATUS_ROLLOUT
 	ret
 
 ParsePlayerAction:
@@ -1019,7 +1012,7 @@ GetPlayerSwitchTarget:
 	call ForcePickSwitchMonInBattle
 
 	call ClearPalettes
-	farcall _LoadBattleFontsHPBar
+	call _LoadBattleFontsHPBar
 	call CloseWindow
 	call ClearSprites
 	ld a, CGB_BATTLE_COLORS
@@ -1131,27 +1124,20 @@ SendInUserPkmn:
 	call BreakAttraction
 	ld a, BATTLE_VARS_SUBSTATUS1
 	call GetBattleVarAddr
-	res SUBSTATUS_ROLLOUT, [hl]
 	res SUBSTATUS_ENDURE, [hl]
 	res SUBSTATUS_PROTECT, [hl]
-	inc hl
-	res SUBSTATUS_CANT_RUN, [hl]
-	res SUBSTATUS_DESTINY_BOND, [hl]
-	res SUBSTATUS_TRANSFORMED, [hl]
-	res SUBSTATUS_MAGIC_BOUNCE, [hl]
-	res SUBSTATUS_FAINTED, [hl]
-	res SUBSTATUS_MINIMIZED, [hl]
-	inc hl
-	res SUBSTATUS_FLYING, [hl]
-	res SUBSTATUS_UNDERGROUND, [hl]
-	res SUBSTATUS_CHARGED, [hl]
-	res SUBSTATUS_FLINCHED, [hl]
-	res SUBSTATUS_IN_LOOP, [hl]
-	res SUBSTATUS_RAMPAGE, [hl]
-	inc hl
-	res SUBSTATUS_RAGE, [hl]
-	res SUBSTATUS_RECHARGE, [hl]
-	res SUBSTATUS_CURLED, [hl]
+	inc hl ; substatus2
+	ld a, 1 << SUBSTATUS_LOCK_ON ; only flag here that should be preserved
+	and [hl]
+	ld [hl], a
+	inc hl ; substatus3
+	ld a, 1 << SUBSTATUS_CONFUSED ; only flag here that should be preserved
+	and [hl]
+	ld [hl], a
+	inc hl ; substatus4
+	ld a, ~(1 << SUBSTATUS_RAGE | 1 << SUBSTATUS_FLINCHED | 1 << SUBSTATUS_CURLED)
+	and [hl]
+	ld [hl], a
 	ldh a, [hBattleTurn]
 	and a
 	jr nz, .reset_used_moves_done
@@ -4144,10 +4130,10 @@ BattleMenuPKMN_Loop:
 	jr c, .Cancel
 	call PlaceHollowCursor
 	ld a, [wMenuCursorY]
-	dec a ; STATS
-	jr z, .Stats
 	dec a ; SWITCH
 	jp z, TryPlayerSwitch
+	dec a ; STATS
+	jr z, .Stats
 	dec a ; MOVES
 	jr z, .Moves
 	dec a ; CANCEL
@@ -4231,8 +4217,8 @@ BattleMenuPKMN_Loop:
 .MenuData:
 	db $c0 ; flags
 	db 4 ; items
-	db "Stats@"
 	db "Switch@"
+	db "Stats@"
 	db "Moves@"
 	db "Cancel@"
 
@@ -4246,8 +4232,8 @@ BattleMenuPKMN_Loop:
 .EggMenuData:
 	db $c0 ; flags
 	db 3 ; items
-	db "Stats@"
 	db "Switch@"
+	db "Stats@"
 	db "Cancel@"
 
 Battle_StatsScreen:
@@ -4328,9 +4314,11 @@ TryPlayerSwitch:
 	ld a, 1
 	ld [wBattlePlayerAction], a
 
-	call ClearPalettes
 	call ClearSprites
+	call ClearPalettes
+	call DelayFrame
 	call _LoadStatusIcons
+	call GetMonBackpic
 	call CloseWindow
 	call GetMemCGBLayout
 	jp SetPalettes
@@ -5328,11 +5316,8 @@ ParseEnemyAction:
 	jp nc, ResetVarsForSubstatusRage
 	ld [wCurEnemyMoveNum], a
 	ld c, a
-	ld a, [wEnemySubStatus1]
-	bit SUBSTATUS_ROLLOUT, a
-	jp nz, .skip_load
 	ld a, [wEnemySubStatus3]
-	and 1 << SUBSTATUS_CHARGED | 1 << SUBSTATUS_RAMPAGE
+	and 1 << SUBSTATUS_CHARGED | 1 << SUBSTATUS_RAMPAGE | 1 << SUBSTATUS_ROLLOUT
 	jp nz, .skip_load
 
 	call SetEnemyTurn
@@ -5611,6 +5596,10 @@ endc
 ApplyLegendaryDVs:
 	push de
 	push bc
+	ld a, [wBattleType]
+	cp BATTLETYPE_RED_GYARADOS
+	jr z, .okay
+
 	push hl
 	ld a, [wCurPartySpecies]
 	ld de, 1
@@ -5618,6 +5607,8 @@ ApplyLegendaryDVs:
 	call IsInArray
 	pop hl
 	jr nc, .done
+
+.okay
 	push hl
 
 	; Generate 3 random stats to give perfect DVs to
@@ -5705,43 +5696,42 @@ GenerateWildForm:
 	push hl
 	push de
 	push bc
-	call .do_it
+	ld a, [wTempEnemyMonSpecies]
+	ld b, a
+	ld hl, WildSpeciesForms
+.loop
+	ld a, [hli]
+	and a
+	jr z, .ok
+	cp b
+	jr z, .ok
+	inc hl
+	inc hl
+	jr .loop
+.ok
+	call IndirectHL
+	ld [wCurForm], a
 	jp PopBCDEHL
 
-.do_it
-	ld a, [wTempEnemyMonSpecies]
-	cp UNOWN
-	jr z, .Unown
-	cp MAGIKARP
-	jr z, .Magikarp
-	cp EKANS
-	jr z, .EkansArbok
-	cp ARBOK
-	jr z, .EkansArbok
-	cp GYARADOS
-	jr z, .Gyarados
-	cp SANDSHREW
-	jr z, .IceForm
-	cp SANDSLASH
-	jr z, .IceForm
-	cp VULPIX
-	jr z, .IceForm
-	cp NINETALES
-	jr z, .IceForm
-	cp DIGLETT
-	jr z, .FireForm
-	cp DUGTRIO
-	jr z, .FireForm
-	cp GEODUDE
-	jr z, .ElecForm
-	cp GRAVELER
-	jr z, .ElecForm
-	cp GOLEM
-	jr z, .ElecForm
+WildSpeciesForms:
+	dbw UNOWN,     .Unown
+	dbw MAGIKARP,  .Magikarp
+	dbw EKANS,     .EkansArbok
+	dbw ARBOK,     .EkansArbok
+	dbw GYARADOS,  .Gyarados
+	dbw SANDSHREW, .IceForm
+	dbw SANDSLASH, .IceForm
+	dbw VULPIX,    .IceForm
+	dbw NINETALES, .IceForm
+	dbw DIGLETT,   .FireForm
+	dbw DUGTRIO,   .FireForm
+	dbw GEODUDE,   .ElectricForm
+	dbw GRAVELER,  .ElectricForm
+	dbw GOLEM,     .ElectricForm
+	dbw 0,         .Default
+
 .Default:
-	ld a, 1
-.GotForm:
-	ld [wCurForm], a
+	ld a, PLAIN_FORM
 	ret
 
 .Unown:
@@ -5749,7 +5739,7 @@ GenerateWildForm:
 	ld a, NUM_UNOWN
 	call BattleRandomRange
 	inc a
-	ld [wCurForm], a
+	ld b, a
 	; Can't use any letters that haven't been unlocked
 	call CheckUnownLetter
 	jr c, .Unown ; re-roll
@@ -5760,23 +5750,23 @@ GenerateWildForm:
 	ld a, NUM_MAGIKARP
 	call BattleRandomRange
 	inc a
-	jr .GotForm
+	ret
 
 .EkansArbok:
 	call RegionCheck
 	ld a, e
 	and a
 	ld a, ARBOK_JOHTO_FORM
-	jr z, .GotForm
+	ret z
 	inc a ; ARBOK_KANTO_FORM
-	jr .GotForm
+	ret
 
 .Gyarados:
 	ld a, [wBattleType]
 	cp BATTLETYPE_RED_GYARADOS
 	jr nz, .Default
 	ld a, GYARADOS_RED_FORM
-	jr .GotForm
+	ret
 
 .IceForm:
 	ld hl, IceLandmarks
@@ -5784,16 +5774,16 @@ GenerateWildForm:
 .FireForm:
 	ld hl, FireLandmarks
 	jr .LandmarkForm
-.ElecForm:
+.ElectricForm:
 	ld hl, ElectricLandmarks
 	; fallthrough
 .LandmarkForm:
 	ld a, [wCurLandmark]
 	ld de, 1
 	call IsInArray
-	ret nc
+	jr nc, .Default
 	ld a, ALOLAN_FORM
-	jr .GotForm
+	ret
 
 IceLandmarks:
 	db ICE_PATH
@@ -5814,7 +5804,7 @@ ElectricLandmarks:
 	db -1
 
 CheckUnownLetter:
-; Return carry if the Unown letter hasn't been unlocked yet
+; Return carry if the Unown letter in b hasn't been unlocked yet
 	ld a, [wUnlockedUnowns]
 	ld c, a
 	ld de, 0
@@ -5832,7 +5822,7 @@ CheckUnownLetter:
 	ld l, a
 
 	push de
-	ld a, [wCurForm]
+	ld a, b
 	ld de, 1
 	push bc
 	call IsInArray

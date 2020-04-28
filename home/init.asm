@@ -6,7 +6,7 @@ SoftReset::
 	call ClearPalettes
 	xor a
 	ldh [rIF], a
-	ld a, 1 ; VBlank int
+	ld a, 1 << VBLANK
 	ldh [rIE], a
 	ei
 
@@ -206,7 +206,8 @@ ClearVRAM::
 	ld hl, vTiles0
 	ld bc, $2000
 	xor a
-	jp _ByteFill
+	rst ByteFill
+	ret
 
 ClearWRAM::
 ; Wipe swappable WRAM banks (1-7)

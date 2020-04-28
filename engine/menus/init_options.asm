@@ -159,9 +159,7 @@ INCBIN "gfx/new_game/init_bg.2bpp"
 	db "Done@"
 
 GetInitialOptionPointer:
-	ld a, [wJumptableIndex] ; load the cursor position to a
-	ld hl, .Pointers
-	jp JumpTable
+	call StandardStackJumpTable
 
 .Pointers:
 	dw InitialOptions_Natures

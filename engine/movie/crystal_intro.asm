@@ -115,11 +115,9 @@ Copyright_GFPresents:
 	jp DelayFrames
 
 PlaceGameFreakPresents:
-	ld a, [wJumptableIndex]
-	ld hl, .dw
-	jp JumpTable
+	call StandardStackJumpTable
 
-.dw
+.Jumptable
 	dw PlaceGameFreakPresents_0
 	dw PlaceGameFreakPresents_1
 	dw PlaceGameFreakPresents_2
@@ -193,8 +191,7 @@ GameFreakLogoJumper:
 	ld hl, SPRITEANIMSTRUCT_JUMPTABLE_INDEX
 	add hl, bc
 	ld a, [hl]
-	ld hl, GameFreakLogoScenes
-	jp JumpTable
+	call StackJumpTable
 
 GameFreakLogoScenes:
 	dw GameFreakLogoScene1
@@ -403,9 +400,7 @@ CrystalIntro:
 	ret
 
 IntroSceneJumper:
-	ld a, [wJumptableIndex]
-	ld hl, IntroScenes
-	jp JumpTable
+	call StandardStackJumpTable
 
 IntroScenes:
 	dw IntroScene1

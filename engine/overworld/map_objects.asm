@@ -26,12 +26,45 @@ DeleteMapObject::
 	ret
 
 HandleCurNPCStep:
-	call .CheckObjectStillVisible
+	call _CheckObjectStillVisible
 	ret c
-	call .HandleStepType
-	jp .HandleObjectAction
+	call _HandleStepType
 
-.CheckObjectStillVisible
+	ld hl, OBJECT_FLAGS1
+	add hl, bc
+	bit INVISIBLE, [hl]
+	jp nz, SetFacingStanding
+	ld hl, OBJECT_FLAGS2
+	add hl, bc
+	bit 6, [hl]
+	jp nz, SetFacingStanding
+	bit OBJECT_DISABLE_STEP_TYPE, [hl]
+	jr nz, asm_4448
+	ld de, Pointers445f ; use first column
+	jr asm_444d
+
+HandleMapObjectAction_Stationary:
+	ld hl, OBJECT_FLAGS1
+	add hl, bc
+	bit INVISIBLE, [hl]
+	jp nz, SetFacingStanding
+asm_4448: ; use second column
+	ld de, Pointers445f + 2
+	; fallthrough
+
+asm_444d:
+	; call [4 * wObjectStructs[ObjInd, OBJECT_ACTION] + de]
+	ld hl, OBJECT_ACTION
+	add hl, bc
+	ld a, [hl]
+	add a
+	ld l, e
+	ld h, d
+	jp JumpTable
+
+INCLUDE "engine/overworld/map_object_action.asm"
+
+_CheckObjectStillVisible:
 	ld hl, OBJECT_FLAGS2
 	add hl, bc
 	res 6, [hl]
@@ -111,7 +144,7 @@ HandleCurNPCStep:
 	and a
 	ret
 
-.HandleStepType
+_HandleStepType:
 	ld hl, OBJECT_STEP_TYPE
 	add hl, bc
 	ld a, [hl]
@@ -141,46 +174,34 @@ HandleCurNPCStep:
 	cp STEP_TYPE_SLEEP
 	ret z
 .do_step_type
-	ld hl, StepTypesJumptable
-	call JumpTable
-	ret
+	call StackJumpTable
 
-.HandleObjectAction
-	ld hl, OBJECT_FLAGS1
-	add hl, bc
-	bit INVISIBLE, [hl]
-	jp nz, SetFacingStanding
-	ld hl, OBJECT_FLAGS2
-	add hl, bc
-	bit 6, [hl]
-	jp nz, SetFacingStanding
-	bit OBJECT_DISABLE_STEP_TYPE, [hl]
-	jr nz, asm_4448
-	ld de, Pointers445f ; use first column
-	jr asm_444d
-
-HandleMapObjectAction_Stationary:
-	ld hl, OBJECT_FLAGS1
-	add hl, bc
-	bit INVISIBLE, [hl]
-	jr nz, SetFacingStanding
-asm_4448: ; use second column
-	ld de, Pointers445f + 2
-	; fallthrough
-
-asm_444d:
-	; call [4 * wObjectStructs[ObjInd, OBJECT_ACTION] + de]
-	ld hl, OBJECT_ACTION
-	add hl, bc
-	ld a, [hl]
-	ld l, a
-	ld h, 0
-	add hl, hl
-	add hl, hl
-	add hl, de
-	jp IndirectHL
-
-INCLUDE "engine/overworld/map_object_action.asm"
+StepTypesJumptable:
+; These pointers use OBJECT_STEP_TYPE. See constants/sprite_constants.asm
+	dw ObjectMovementReset      ; STEP_TYPE_00
+	dw MapObjectMovementPattern ; STEP_TYPE_SLEEP
+	dw NPCStep                  ; STEP_TYPE_NPC_WALK
+	dw StepType03               ; STEP_TYPE_03
+	dw StepType04               ; STEP_TYPE_04
+	dw StepType05               ; STEP_TYPE_05
+	dw PlayerStep               ; STEP_TYPE_PLAYER_WALK
+	dw StepType07               ; STEP_TYPE_07
+	dw NPCJump                  ; STEP_TYPE_NPC_JUMP
+	dw PlayerJump               ; STEP_TYPE_PLAYER_JUMP
+	dw PlayerOrNPCTurnStep      ; STEP_TYPE_HALF_STEP
+	dw StepTypeBump             ; STEP_TYPE_BUMP
+	dw TeleportFrom             ; STEP_TYPE_TELEPORT_FROM
+	dw TeleportTo               ; STEP_TYPE_TELEPORT_TO
+	dw Skyfall                  ; STEP_TYPE_SKYFALL
+	dw StepType0f               ; STEP_TYPE_0F
+	dw GotBiteStep              ; STEP_TYPE_GOT_BITE
+	dw RockSmashStep            ; STEP_TYPE_ROCK_SMASH
+	dw ReturnDigStep            ; STEP_TYPE_RETURN_DIG
+	dw StepTypeTrackingObject   ; STEP_TYPE_TRACKING_OBJECT
+	dw StepType14               ; STEP_TYPE_14
+	dw SkyfallTop               ; STEP_TYPE_SKYFALL_TOP
+	dw NPCSidewaysStairs        ; STEP_TYPE_NPC_STAIRS
+	dw PlayerSidewaysStairs     ; STEP_TYPE_PLAYER_STAIRS
 
 CopyNextCoordsTileToStandingCoordsTile:
 	ld hl, OBJECT_NEXT_MAP_X
@@ -430,6 +451,10 @@ RestoreDefaultMovement:
 	ld a, SPRITEMOVEFN_STANDING
 	ret
 
+MovementAnonymousJumptable:
+	ld hl, OBJECT_MOVEMENT_BYTE_INDEX
+	jp OffsetStackJumpTable
+
 IncrementObjectMovementByteIndex:
 	ld hl, OBJECT_MOVEMENT_BYTE_INDEX
 	add hl, bc
@@ -442,19 +467,9 @@ DecrementObjectMovementByteIndex:
 	dec [hl]
 	ret
 
-MovementAnonymousJumptable:
-	ld hl, OBJECT_MOVEMENT_BYTE_INDEX
-	add hl, bc
-	ld a, [hl]
-	pop hl
-	call JumpTable
-	ret
-
-ClearObjectStructField28:
+Object28AnonymousJumptable:
 	ld hl, OBJECT_28
-	add hl, bc
-	ld [hl], 0
-	ret
+	jp OffsetStackJumpTable
 
 IncrementObjectStructField28:
 	ld hl, OBJECT_28
@@ -462,12 +477,10 @@ IncrementObjectStructField28:
 	inc [hl]
 	ret
 
-Object28AnonymousJumptable:
+ClearObjectStructField28:
 	ld hl, OBJECT_28
 	add hl, bc
-	ld a, [hl]
-	pop hl
-	call JumpTable
+	ld [hl], 0
 	ret
 
 ObjectMovementReset:
@@ -494,9 +507,7 @@ MapObjectMovementPattern:
 	call ClearObjectStructField28
 	call GetSpriteMovementFunction
 	ld a, [hl]
-	ld hl, .Pointers
-	call JumpTable
-	ret
+	call StackJumpTable
 
 .Pointers:
 	dw DoNothing                     ; SPRITEMOVEFN_00
@@ -1047,33 +1058,6 @@ SetRandomStepDuration:
 	add hl, bc
 	ld [hl], STEP_TYPE_03
 	ret
-
-StepTypesJumptable:
-; These pointers use OBJECT_STEP_TYPE. See constants/sprite_constants.asm
-	dw ObjectMovementReset      ; STEP_TYPE_00
-	dw MapObjectMovementPattern ; STEP_TYPE_SLEEP
-	dw NPCStep                  ; STEP_TYPE_NPC_WALK
-	dw StepType03               ; STEP_TYPE_03
-	dw StepType04               ; STEP_TYPE_04
-	dw StepType05               ; STEP_TYPE_05
-	dw PlayerStep               ; STEP_TYPE_PLAYER_WALK
-	dw StepType07               ; STEP_TYPE_07
-	dw NPCJump                  ; STEP_TYPE_NPC_JUMP
-	dw PlayerJump               ; STEP_TYPE_PLAYER_JUMP
-	dw PlayerOrNPCTurnStep      ; STEP_TYPE_HALF_STEP
-	dw StepTypeBump             ; STEP_TYPE_BUMP
-	dw TeleportFrom             ; STEP_TYPE_TELEPORT_FROM
-	dw TeleportTo               ; STEP_TYPE_TELEPORT_TO
-	dw Skyfall                  ; STEP_TYPE_SKYFALL
-	dw StepType0f               ; STEP_TYPE_0F
-	dw GotBiteStep              ; STEP_TYPE_GOT_BITE
-	dw RockSmashStep            ; STEP_TYPE_ROCK_SMASH
-	dw ReturnDigStep            ; STEP_TYPE_RETURN_DIG
-	dw StepTypeTrackingObject   ; STEP_TYPE_TRACKING_OBJECT
-	dw StepType14               ; STEP_TYPE_14
-	dw SkyfallTop               ; STEP_TYPE_SKYFALL_TOP
-	dw NPCSidewaysStairs        ; STEP_TYPE_NPC_STAIRS
-	dw PlayerSidewaysStairs     ; STEP_TYPE_PLAYER_STAIRS
 
 WaitStep_InPlace:
 	ld hl, OBJECT_STEP_DURATION
@@ -1901,14 +1885,6 @@ JumpMovementPointer:
 ContinueReadingMovement:
 	ld a, 1
 	ld [wMovementByteWasControlSwitch], a
-	ret
-
-DoMovementFunction:
-	push af
-	call ApplyMovementToFollower
-	pop af
-	ld hl, MovementPointers
-	call JumpTable
 	ret
 
 INCLUDE "engine/overworld/movement.asm"

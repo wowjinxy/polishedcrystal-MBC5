@@ -12,9 +12,7 @@ OpenMartDialog::
 	call GetMart
 	call LoadMartPointer
 	ld a, [wEngineBuffer1]
-	ld hl, .dialogs
-	call JumpTable
-	ret
+	call StackJumpTable
 
 .dialogs
 	dw MartDialog
@@ -1137,7 +1135,8 @@ BlueCardMenuDataHeader_Buy:
 	lb bc, 1, 3
 	call PrintNum
 	ld de, .PointsString
-	jp _PlaceString
+	rst PlaceString
+	ret
 
 .PointsString:
 	db " Pts@"
@@ -1165,7 +1164,8 @@ BTMenuDataHeader_Buy:
 	lb bc, 1, 3
 	call PrintNum
 	ld de, .PointsString
-	jp _PlaceString
+	rst PlaceString
+	ret
 
 .PointsString:
 	db " BP@"
@@ -1412,11 +1412,9 @@ SellMenu:
 	jr z, .cant_sell
 	farcall CheckItemMenu
 	ld a, [wItemAttributeParamBuffer]
-	ld hl, .dw
-	call JumpTable
-	ret
+	call StackJumpTable
 
-.dw
+.Jumptable
 	dw .okay_to_sell
 	dw DoNothing
 	dw DoNothing

@@ -543,7 +543,8 @@ Continue_UnknownGameTime:
 	decoord 9, 8, 0
 	add hl, de
 	ld de, .three_question_marks
-	jp _PlaceString
+	rst PlaceString
+	ret
 
 .three_question_marks
 	db " ???@"
@@ -713,7 +714,7 @@ ElmText7:
 	text_end
 
 InitGender:
-	ld hl, WhitePal
+	ld hl, .WhitePal
 	ld de, wBGPals1 palette 0
 	ld bc, 1 palettes
 	call FarCopyColorWRAM
@@ -760,6 +761,19 @@ InitGender:
 	call YesNoBox
 	jr c, InitGender
 	ret
+
+.WhitePal:
+if !DEF(MONOCHROME)
+	RGB 31, 31, 31
+	RGB 31, 31, 31
+	RGB 31, 31, 31
+	RGB 31, 31, 31
+else
+	RGB_MONOCHROME_WHITE
+	RGB_MONOCHROME_WHITE
+	RGB_MONOCHROME_WHITE
+	RGB_MONOCHROME_WHITE
+endc
 
 .MenuDataHeader:
 	db $40 ; flags
@@ -993,10 +1007,9 @@ StartTitleScreen:
 	jr c, .ok
 	xor a
 .ok
-	ld hl, .dw
-	jp JumpTable
+	call StackJumpTable
 
-.dw
+.Jumptable
 	dw _MainMenu
 	dw DeleteSaveData
 	dw CrystalIntroSequence
@@ -1019,8 +1032,7 @@ RunTitleScreen:
 	ret
 
 TitleScreenScene:
-	ld hl, .scenes
-	jp JumpTable
+	call StackJumpTable
 
 .scenes
 	dw TitleScreenEntrance
@@ -1245,7 +1257,8 @@ Copyright:
 	call DecompressRequest2bpp
 	hlcoord 2, 7
 	ld de, CopyrightString
-	jp _PlaceString
+	rst PlaceString
+	ret
 
 CopyrightString:
 	; ©1995-2001 Nintendo

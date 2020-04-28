@@ -473,9 +473,7 @@ TryObjectEvent:
 	cp NUM_PERSONTYPES
 	ret nc
 
-	ld hl, .pointers
-	call JumpTable
-	ret
+	call StackJumpTable
 
 .pointers:
 	dw .script   ; PERSONTYPE_SCRIPT
@@ -560,9 +558,7 @@ TryReadSign:
 	ld a, [wEngineBuffer3]
 	cp SIGNPOST_ITEM
 	jp nc, .itemifset
-	ld hl, .signs
-	call JumpTable
-	ret
+	call StackJumpTable
 
 .signs
 	dw .read     ; SIGNPOST_READ

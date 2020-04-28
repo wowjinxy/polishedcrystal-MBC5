@@ -51,9 +51,7 @@ WaitScriptMovement:
 
 RunScriptCommand:
 	call GetScriptByte
-	ld hl, ScriptCommandTable
-	call JumpTable
-	ret
+	call StackJumpTable
 
 ScriptCommandTable:
 	dw Script_scall                      ; 00
@@ -1959,7 +1957,8 @@ ResetStringBuffer1:
 	ld hl, wStringBuffer1
 	ld bc, NAME_LENGTH
 	ld a, "@"
-	jp _ByteFill
+	rst ByteFill
+	ret
 
 Script_stringtotext:
 ; parameters:

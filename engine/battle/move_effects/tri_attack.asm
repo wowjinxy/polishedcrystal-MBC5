@@ -9,11 +9,9 @@ BattleCommand_tristatuschance:
 	jr z, .loop
 ; jump
 	dec a
-	ld hl, .ptrs
-	call JumpTable
-	ret
+	call StackJumpTable
 
-.ptrs
+.Jumptable:
 	dw BattleCommand_paralyzetarget ; paralyze
 	dw BattleCommand_freezetarget ; freeze
 	dw BattleCommand_burntarget ; burn

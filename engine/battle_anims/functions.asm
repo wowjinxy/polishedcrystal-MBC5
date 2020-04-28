@@ -2,8 +2,7 @@ DoBattleAnimFrame:
 	ld hl, BATTLEANIMSTRUCT_FUNCTION
 	add hl, bc
 	ld a, [hl]
-	ld hl, .Jumptable
-	jp JumpTable
+	call StackJumpTable
 
 .Jumptable:
 	dw BattleAnimFunction_Null ; 00
@@ -87,6 +86,16 @@ DoBattleAnimFrame:
 	dw BattleAnimFunction_4E ; 4e
 	dw BattleAnimFunction_4F ; 4f
 	dw BattleAnimFunction_StraightDescent
+
+BattleAnim_AnonJumptable:
+	ld hl, BATTLEANIMSTRUCT_ANON_JT_INDEX
+	jp OffsetStackJumpTable
+
+BattleAnim_IncAnonJumptableIndex:
+	ld hl, BATTLEANIMSTRUCT_ANON_JT_INDEX
+	add hl, bc
+	inc [hl]
+	ret
 
 BattleAnimFunction_Null:
 	call BattleAnim_AnonJumptable
@@ -3837,20 +3846,4 @@ Functionce70a:
 	dec [hl]
 	dec e
 	jr nz, .asm_ce719
-	ret
-
-BattleAnim_AnonJumptable:
-	pop de
-	ld hl, BATTLEANIMSTRUCT_ANON_JT_INDEX
-	add hl, bc
-	ld l, [hl]
-	ld h, 0
-	add hl, hl
-	add hl, de
-	jp IndirectHL
-
-BattleAnim_IncAnonJumptableIndex:
-	ld hl, BATTLEANIMSTRUCT_ANON_JT_INDEX
-	add hl, bc
-	inc [hl]
 	ret

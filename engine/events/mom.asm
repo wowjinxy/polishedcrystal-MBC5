@@ -18,11 +18,9 @@ Special_BankOfMom:
 	ret
 
 .RunJumptable:
-	ld a, [wJumptableIndex]
-	ld hl, .dw
-	jp JumpTable
+	call StandardStackJumpTable
 
-.dw
+.Jumptable
 	dw .CheckIfBankInitialized
 	dw .InitializeBank
 	dw .IsThisAboutYourMoney

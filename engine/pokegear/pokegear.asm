@@ -368,9 +368,7 @@ Pokegear_FinishTilemap:
 	ret
 
 PokegearJumptable:
-	ld a, [wJumptableIndex]
-	ld hl, .Jumptable
-	jp JumpTable
+	call StandardStackJumpTable
 
 .Jumptable:
 	dw PokegearClock_Init
@@ -718,7 +716,8 @@ TownMap_ConvertLineBreakCharacters:
 .end
 	ld de, wStringBuffer1
 	hlcoord 9, 0
-	jp _PlaceString
+	rst PlaceString
+	ret
 
 TownMap_GetJohtoLandmarkLimits:
 	lb de, SILVER_CAVE, NEW_BARK_TOWN
@@ -2052,7 +2051,8 @@ TownMapBubble:
 	farcall GetLandmarkName
 	hlcoord 2, 1
 	ld de, wStringBuffer1
-	jp _PlaceString
+	rst PlaceString
+	ret
 
 GetMapCursorCoordinates:
 	ld a, [wTownMapPlayerIconLandmark]
@@ -2371,7 +2371,8 @@ Pokedex_GetArea:
 	ld h, b
 	ld l, c
 	ld de, .String_SNest
-	jp _PlaceString
+	rst PlaceString
+	ret
 
 .String_SNest:
 	db "'s Nest@"
@@ -2455,7 +2456,8 @@ Pokedex_GetArea:
 	ld hl, wVirtualOAM + 4 * 4
 	ld bc, wVirtualOAMEnd - (wVirtualOAM + 4 * 4)
 	xor a
-	jp _ByteFill
+	rst ByteFill
+	ret
 
 .PlayerOAM:
 	db -1 * 8, -1 * 8,  0 ; top left

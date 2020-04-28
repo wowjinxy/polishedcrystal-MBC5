@@ -9,6 +9,12 @@ CloseWindow::
 	pop af
 	ret
 
+ExitMenu::
+	push af
+	farcall _ExitMenu
+	pop af
+	ret
+
 RestoreTileBackup::
 	call PushWindow_MenuBoxCoordToTile
 	call .copy
@@ -141,7 +147,8 @@ PlaceVerticalMenuItems::
 	inc de
 	ld b, $0
 	add hl, bc
-	jp _PlaceString
+	rst PlaceString
+	ret
 
 MenuBox::
 	call MenuBoxCoord2Tile
@@ -604,7 +611,8 @@ PlaceMenuStrings::
 	ld d, h
 	ld e, l
 	pop hl
-	jp _PlaceString
+	rst PlaceString
+	ret
 
 PlaceNthMenuStrings::
 	push de
@@ -616,7 +624,8 @@ PlaceNthMenuStrings::
 	ld d, [hl]
 	ld e, a
 	pop hl
-	jp _PlaceString
+	rst PlaceString
+	ret
 
 MenuJumptable::
 	ld a, [wMenuSelection]
@@ -667,7 +676,8 @@ ClearWindowData::
 .bytefill
 	ld bc, $0010
 	xor a
-	jp _ByteFill
+	rst ByteFill
+	ret
 
 MenuClickSound::
 	push af

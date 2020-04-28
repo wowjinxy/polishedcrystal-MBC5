@@ -64,7 +64,7 @@ Gen2ToGen2LinkComms:
 	call DelayFrames
 	xor a
 	ldh [rIF], a
-	ld a, %01000
+	ld a, 1 << SERIAL
 	ldh [rIE], a
 	ld hl, wLinkBuffer
 	ld de, wLinkBufferEnd
@@ -93,7 +93,7 @@ Gen2ToGen2LinkComms:
 .not_trading
 	xor a
 	ldh [rIF], a
-	ld a, %11001
+	ld a, 1 << SERIAL | 1 << VBLANK
 	ldh [rIE], a
 	ld de, MUSIC_NONE
 	call PlayMusic
@@ -264,7 +264,7 @@ Gen2ToGen2LinkComms:
 	xor a
 	ldh [rIF], a
 	ldh a, [rIE]
-	set 1, a
+	set LCD_STAT, a
 	ldh [rIE], a
 	pop af
 	ldh [rIF], a
@@ -648,7 +648,8 @@ InitTradeSpeciesList:
 	call PlaceTradePartnerNamesAndParty
 	hlcoord 10, 17
 	ld de, .Cancel
-	jp _PlaceString
+	rst PlaceString
+	ret
 
 .TradeScreenTilemap:
 INCBIN "gfx/link_trade/16d465.tilemap"
@@ -1112,12 +1113,10 @@ Function28926:
 	call Call_LoadTempTileMapToTileMap
 	hlcoord 6, 1
 	lb bc, 6, 1
-	ld a, " "
-	call LinkEngine_FillBox
+	call ClearBox
 	hlcoord 17, 1
 	lb bc, 6, 1
-	ld a, " "
-	call LinkEngine_FillBox
+	call ClearBox
 	jp LinkTrade_PlayerPartyMenu
 
 .try_trade
@@ -1334,22 +1333,6 @@ Function28b22:
 	ldh [rSC], a
 	ld a, START_TRANSFER_INTERNAL_CLOCK
 	ldh [rSC], a
-	ret
-
-LinkEngine_FillBox:
-.row
-	push bc
-	push hl
-.col
-	ld [hli], a
-	dec c
-	jr nz, .col
-	pop hl
-	ld bc, SCREEN_WIDTH
-	add hl, bc
-	pop bc
-	dec b
-	jr nz, .row
 	ret
 
 LinkTrade:
@@ -1858,7 +1841,7 @@ WaitForOtherPlayerToExit:
 	push af
 	xor a
 	ldh [rIF], a
-	ld a, %01011
+	ld a, 1 << SERIAL | 1 << LCD_STAT | 1 << VBLANK
 	ldh [rIE], a
 	pop af
 	ldh [rIF], a
@@ -2406,7 +2389,8 @@ InitLinkTradePalMap:
 	hlcoord 2, 17, wAttrMap
 	ld a, $3
 	ld bc, 6
-	jp _ByteFill
+	rst ByteFill
+	ret
 
 .fill_box:
 .row

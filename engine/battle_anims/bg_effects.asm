@@ -69,8 +69,7 @@ DoBattleBGEffectFunction:
 	ld hl, BG_EFFECT_STRUCT_FUNCTION
 	add hl, bc
 	ld a, [hl]
-	ld hl, BattleBGEffects
-	jp JumpTable
+	call StackJumpTable
 
 BattleBGEffects:
 	dw BattleBGEffect_End
@@ -129,14 +128,8 @@ BattleBGEffects:
 	dw BattleBGEffect_35
 
 BattleBGEffects_AnonJumptable:
-	pop de
 	ld hl, BG_EFFECT_STRUCT_JT_INDEX
-	add hl, bc
-	ld l, [hl]
-	ld h, 0
-	add hl, hl
-	add hl, de
-	jp IndirectHL
+	jp OffsetStackJumpTable
 
 BattleBGEffects_IncrementJumptable:
 	ld hl, BG_EFFECT_STRUCT_JT_INDEX
@@ -365,13 +358,13 @@ BattleBGEffect_FeetFollow:
 	push bc
 	call BGEffect_CheckBattleTurn
 	jr nz, .player_turn
-	ld a, ANIM_OBJ_PLAYERFEETFOLLOW
+	ld a, ANIM_OBJ_ENEMYFEET_1ROW
 	ld [wBattleAnimTemp0], a
 	ld a, 16 * 8 + 4
 	jr .okay
 
 .player_turn
-	ld a, ANIM_OBJ_ENEMYFEETFOLLOW
+	ld a, ANIM_OBJ_PLAYERHEAD_1ROW
 	ld [wBattleAnimTemp0], a
 	ld a, 6 * 8
 .okay
@@ -430,13 +423,13 @@ BattleBGEffect_HeadFollow:
 	push bc
 	call BGEffect_CheckBattleTurn
 	jr nz, .player_turn
-	ld a, ANIM_OBJ_BA
+	ld a, ANIM_OBJ_ENEMYFEET_2ROW
 	ld [wBattleAnimTemp0], a
 	ld a, 16 * 8 + 4
 	jr .okay
 
 .player_turn
-	ld a, ANIM_OBJ_BB
+	ld a, ANIM_OBJ_PLAYERHEAD_2ROW
 	ld [wBattleAnimTemp0], a
 	ld a, 6 * 8
 .okay
@@ -1839,13 +1832,13 @@ BattleBGEffect_1c:
 	ld hl, BG_EFFECT_STRUCT_JT_INDEX
 	add hl, bc
 	ld a, [hl]
-	ld hl, .Jumptable
-	jp JumpTable
+	call StackJumpTable
 
 .Jumptable:
 	dw .cgb_zero
 	dw .cgb_one
 	dw .cgb_two
+
 .cgb_zero
 	call BattleBGEffects_IncrementJumptable
 	ld hl, BG_EFFECT_STRUCT_03
@@ -2164,10 +2157,9 @@ BGEffect_RapidCyclePals:
 	ld hl, BG_EFFECT_STRUCT_JT_INDEX
 	add hl, bc
 	ld a, [hl]
-	ld hl, .Jumptable_CGB
-	jp JumpTable
+	call StackJumpTable
 
-.Jumptable_CGB:
+.Jumptable:
 	dw .zero_cgb
 	dw .one_cgb
 	dw .two_cgb

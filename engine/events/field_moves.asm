@@ -134,11 +134,9 @@ CutGrassGFX:
 INCBIN "gfx/overworld/cut_grass.2bpp"
 
 OWCutJumptable:
-	ld a, [wJumptableIndex]
-	ld hl, .dw
-	jp JumpTable
+	call StandardStackJumpTable
 
-.dw
+.Jumptable:
 	dw Cut_SpawnAnimateTree
 	dw Cut_SpawnAnimateLeaves
 	dw Cut_StartWaiting
@@ -361,7 +359,8 @@ FlyToAnim:
 	ld hl, wVirtualOAM + 4 * 4
 	ld bc, wVirtualOAMEnd - (wVirtualOAM + 4 * 4)
 	xor a
-	jp _ByteFill
+	rst ByteFill
+	ret
 
 FlyFunction_InitGFX:
 	call ClearSpriteAnims

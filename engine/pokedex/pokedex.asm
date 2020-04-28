@@ -148,9 +148,7 @@ Pokedex_InitCursorPosition:
 	ret
 
 Pokedex_RunJumptable:
-	ld a, [wJumptableIndex]
-	ld hl, .Jumptable
-	jp JumpTable
+	call StandardStackJumpTable
 
 .Jumptable:
 	dw Pokedex_InitMainScreen
@@ -324,23 +322,27 @@ Pokedex_UpdateDexEntryScreen:
 	ret nc
 	jp Pokedex_IncrementDexPointer
 
-.do_menu_action
-	ld a, [wDexArrowCursorPosIndex]
-	ld hl, DexEntryScreen_MenuActionJumptable
-	jp JumpTable
-
 .return_to_prev_screen
 	ld a, [wLastVolume]
 	and a
 	jr z, .max_volume
 	ld a, $77
 	ld [wLastVolume], a
-
 .max_volume
 	call MaxVolume
 	ld a, [wDexEntryPrevJumptableIndex]
 	ld [wJumptableIndex], a
 	ret
+
+.do_menu_action
+	ld a, [wDexArrowCursorPosIndex]
+	call StackJumpTable
+
+.DexEntryScreen_MenuActionJumptable:
+	dw Pokedex_Page
+	dw DexEntryScreen_Area
+	dw DexEntryScreen_Cry
+	dw DexEntryScreen_Shiny
 
 Pokedex_Page:
 	ld a, [wPokedexStatus]
@@ -390,13 +392,7 @@ DexEntryScreen_ArrowCursorData_ShinyCharm:
 	dwcoord 11, 17
 	dwcoord 15, 17
 
-DexEntryScreen_MenuActionJumptable:
-	dw Pokedex_Page
-	dw .Area
-	dw .Cry
-	dw .Shiny
-
-.Area:
+DexEntryScreen_Area:
 	call Pokedex_BlackOutBG
 	xor a
 	ldh [hSCX], a
@@ -426,11 +422,11 @@ DexEntryScreen_MenuActionJumptable:
 	ld a, CGB_POKEDEX
 	jp Pokedex_GetCGBLayout
 
-.Cry:
+DexEntryScreen_Cry:
 	ld a, [wCurPartySpecies]
 	jp PlayCry
 
-.Shiny:
+DexEntryScreen_Shiny:
 	ld hl, wDexMonShiny
 	ld a, [hl]
 	xor SHINY_MASK ; alternate 0 and SHINY_MASK
@@ -477,13 +473,15 @@ Pokedex_UpdateOptionScreen:
 	jr nz, .return_to_main_screen
 	ld a, [hl]
 	and A_BUTTON
-	jr nz, .do_menu_action
-	ret
-
-.do_menu_action
+	ret z
 	ld a, [wDexArrowCursorPosIndex]
-	ld hl, .MenuActionJumptable
-	jp JumpTable
+	call StackJumpTable
+
+.MenuActionJumptable:
+	dw .MenuAction_NewMode
+	dw .MenuAction_OldMode
+	dw .MenuAction_ABCMode
+	dw .MenuAction_UnownMode
 
 .return_to_main_screen
 	call Pokedex_BlackOutBG
@@ -503,12 +501,6 @@ Pokedex_UpdateOptionScreen:
 	dwcoord 2,  6
 	dwcoord 2,  8
 	dwcoord 2, 10
-
-.MenuActionJumptable:
-	dw .MenuAction_NewMode
-	dw .MenuAction_OldMode
-	dw .MenuAction_ABCMode
-	dw .MenuAction_UnownMode
 
 .MenuAction_NewMode:
 	ld b, DEXMODE_NEW
@@ -578,10 +570,14 @@ Pokedex_UpdateSearchScreen:
 	ld a, [hl]
 	and A_BUTTON
 	ret z
-
 	ld a, [wDexArrowCursorPosIndex]
-	ld hl, .MenuActionJumptable
-	jp JumpTable
+	call StackJumpTable
+
+.MenuActionJumptable:
+	dw .MenuAction_MonSearchType
+	dw .MenuAction_MonSearchType
+	dw .MenuAction_BeginSearch
+	dw .MenuAction_Cancel
 
 .cancel
 	call Pokedex_BlackOutBG
@@ -595,12 +591,6 @@ Pokedex_UpdateSearchScreen:
 	dwcoord 2, 6
 	dwcoord 2, 13
 	dwcoord 2, 15
-
-.MenuActionJumptable:
-	dw .MenuAction_MonSearchType
-	dw .MenuAction_MonSearchType
-	dw .MenuAction_BeginSearch
-	dw .MenuAction_Cancel
 
 .MenuAction_MonSearchType:
 	call Pokedex_NextSearchMonType
@@ -1186,7 +1176,8 @@ Pokedex_DrawOptionScreenBG:
 	ret z
 	hlcoord 3, 10
 	ld de, .UnownMode
-	jp _PlaceString
+	rst PlaceString
+	ret
 
 .Title:
 	rawchar $3b, " Option ", $3c, $ff
@@ -1218,7 +1209,8 @@ Pokedex_DrawSearchScreenBG:
 	rst PlaceString
 	hlcoord 3, 13
 	ld de, .Menu
-	jp _PlaceString
+	rst PlaceString
+	ret
 
 .Title:
 	rawchar $3b, " Search ", $3c, $ff
@@ -1439,7 +1431,8 @@ Pokedex_DrawSearchResultsWindow:
 	call ClearBox
 	ld de, .esults_D
 	hlcoord 0, 12
-	jp _PlaceString
+	rst PlaceString
+	ret
 
 .esults_D
 ; (SEARCH R)
@@ -1451,7 +1444,8 @@ Pokedex_FillBackgroundColor2:
 	hlcoord 0, 0
 	ld a, $32
 	ld bc, SCREEN_WIDTH * SCREEN_HEIGHT
-	jp _ByteFill
+	rst ByteFill
+	ret
 
 Pokedex_PlaceString:
 .loop
@@ -1512,8 +1506,7 @@ Pokedex_PrintListing:
 	inc a
 	ld b, a
 	ld c, 11
-	ld a, " "
-	call FillBoxWithByte
+	call ClearBox
 
 ; Load de with wPokedexDataStart + [wDexListingScrollOffset]
 	ld a, [wDexListingScrollOffset]
@@ -1553,7 +1546,8 @@ Pokedex_PrintListing:
 	push hl
 	call GetPokemonName
 	pop hl
-	jp _PlaceString
+	rst PlaceString
+	ret
 
 Pokedex_PrintNumberIfOldMode:
 	ld a, [wCurDexMode]
@@ -1645,8 +1639,7 @@ Pokedex_OrderMonsByMode:
 	xor a
 	rst ByteFill
 	ld a, [wCurDexMode]
-	ld hl, .Jumptable
-	jp JumpTable
+	call StackJumpTable
 
 .Jumptable:
 	dw .NewMode
@@ -1870,8 +1863,7 @@ Pokedex_PlaceSearchScreenTypeStrings:
 	ldh [hBGMapMode], a
 	hlcoord 9, 3
 	lb bc, 4, 8
-	ld a, " "
-	call FillBoxWithByte
+	call ClearBox
 	ld a, [wDexSearchMonType1]
 	hlcoord 9, 4
 	call Pokedex_PlaceTypeString
@@ -1893,7 +1885,8 @@ endr
 	ld e, l
 	ld d, h
 	pop hl
-	jp _PlaceString
+	rst PlaceString
+	ret
 
 INCLUDE "data/types/search_strings.asm"
 

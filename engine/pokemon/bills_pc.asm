@@ -36,9 +36,7 @@ _DepositPKMN:
 	ret
 
 .RunJumptable:
-	ld a, [wJumptableIndex]
-	ld hl, .Jumptable
-	jp JumpTable
+	call StandardStackJumpTable
 
 .Jumptable:
 	dw .Init
@@ -131,8 +129,7 @@ _DepositPKMN:
 	ld a, [wMenuCursorY]
 	dec a
 	and $3
-	ld hl, BillsPCDepositJumptable
-	jp JumpTable
+	call StackJumpTable
 
 BillsPCDepositJumptable:
 	dw BillsPCDepositFuncDeposit ; Deposit Pokemon
@@ -259,9 +256,7 @@ _WithdrawPKMN:
 	ret
 
 .RunJumptable:
-	ld a, [wJumptableIndex]
-	ld hl, .Jumptable
-	jp JumpTable
+	call StandardStackJumpTable
 
 .Jumptable:
 	dw .Init
@@ -351,10 +346,9 @@ BillsPC_Withdraw:
 	ld a, [wMenuCursorY]
 	dec a
 	and 3
-	ld hl, .dw
-	jp JumpTable
+	call StackJumpTable
 
-.dw
+.Jumptable
 	dw .withdraw ; Withdraw
 	dw .stats ; Stats
 	dw .release ; Release
@@ -478,9 +472,7 @@ _MovePKMNWithoutMail:
 	ret
 
 .RunJumptable:
-	ld a, [wJumptableIndex]
-	ld hl, .Jumptable
-	jp JumpTable
+	call StandardStackJumpTable
 
 .Jumptable:
 	dw .Init
@@ -578,8 +570,7 @@ _MovePKMNWithoutMail:
 	ld a, [wMenuCursorY]
 	dec a
 	and 3
-	ld hl, .Jumptable2
-	jp JumpTable
+	call StackJumpTable
 
 .Jumptable2:
 	dw .Move
@@ -888,7 +879,8 @@ BillsPC_PlaceString:
 	call TextBox
 	pop de
 	hlcoord 1, 16
-	jp _PlaceString
+	rst PlaceString
+	ret
 
 BillsPC_MoveMonWOMail_BoxNameAndArrows:
 	call BillsPC_BoxName
@@ -925,7 +917,8 @@ BillsPC_BoxName:
 	ld de, .PartyPKMN
 .print
 	hlcoord 10, 1
-	jp _PlaceString
+	rst PlaceString
+	ret
 
 .PartyPKMN:
 	db "Party <PK><MN>@"
@@ -1240,7 +1233,8 @@ BillsPC_RefreshTextboxes:
 	cp -1
 	jr nz, .get_nickname
 	ld de, .CancelString
-	jp _PlaceString
+	rst PlaceString
+	ret
 
 .get_nickname
 	inc de
@@ -1279,7 +1273,8 @@ BillsPC_RefreshTextboxes:
 	call CloseSRAM
 	pop hl
 	ld de, wStringBuffer1
-	jp _PlaceString
+	rst PlaceString
+	ret
 
 .boxfail
 	call CloseSRAM
@@ -1303,7 +1298,8 @@ BillsPC_RefreshTextboxes:
 	rst CopyBytes
 	pop hl
 	ld de, wStringBuffer1
-	jp _PlaceString
+	rst PlaceString
+	ret
 
 .partyfail
 	pop hl
@@ -1329,14 +1325,16 @@ BillsPC_RefreshTextboxes:
 	call CloseSRAM
 	pop hl
 	ld de, wStringBuffer1
-	jp _PlaceString
+	rst PlaceString
+	ret
 
 .sBoxFail
 	call CloseSRAM
 	pop hl
 .placeholder_string
 	ld de, .Placeholder
-	jp _PlaceString
+	rst PlaceString
+	ret
 
 .Placeholder:
 	db "-----@"
@@ -2254,7 +2252,8 @@ BillsPC_ClearTilemap:
 	hlcoord 0, 0
 	ld bc, SCREEN_WIDTH * SCREEN_HEIGHT
 	ld a, " "
-	jp _ByteFill
+	rst ByteFill
+	ret
 
 _ChangeBox_menudataheader:
 	db $40 ; flags
@@ -2287,7 +2286,8 @@ endr
 	dec a
 	call GetBoxName
 	pop hl
-	jp _PlaceString
+	rst PlaceString
+	ret
 
 GetBoxName:
 	ld bc, BOX_NAME_LENGTH
@@ -2314,7 +2314,8 @@ BillsPC_PrintBoxCountAndCapacity:
 	lb bc, 1, 2
 	call PrintNum
 	ld de, .out_of_20
-	jp _PlaceString
+	rst PlaceString
+	ret
 
 .Pokemon:
 	db "#mon@"
@@ -2341,7 +2342,8 @@ BillsPC_PrintBoxCountAndCapacityInsideBox:
 	lb bc, 1, 2
 	call PrintNum
 	ld de, .out_of_20
-	jp _PlaceString
+	rst PlaceString
+	ret
 
 .party
 	ld a, [wPartyCount]
@@ -2351,7 +2353,8 @@ BillsPC_PrintBoxCountAndCapacityInsideBox:
 	lb bc, 1, 2
 	call PrintNum
 	ld de, .out_of_6
-	jp _PlaceString
+	rst PlaceString
+	ret
 
 .out_of_20
 	; db "/20@"
@@ -2450,7 +2453,8 @@ BillsPC_PrintBoxName:
 	and $f
 	call GetBoxName
 	hlcoord 11, 2
-	jp _PlaceString
+	rst PlaceString
+	ret
 
 .Current:
 	db "Current@"

@@ -62,9 +62,7 @@ UseRegisteredItem:
 	pop de
 	farcall CheckKeyItemMenu
 	ld a, [wItemAttributeParamBuffer]
-	ld hl, .SwitchTo
-	call JumpTable
-	ret
+	call StackJumpTable
 
 .SwitchTo:
 	dw .CantUse
