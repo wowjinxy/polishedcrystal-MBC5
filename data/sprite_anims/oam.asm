@@ -75,6 +75,8 @@ SpriteAnimOAMData:
 	dbw $04, .OAMData_84 ; SPRITE_ANIM_FRAME_IDX_8A
 	dbw $00, .OAMData_84 ; SPRITE_ANIM_FRAME_IDX_8B
 	dbw $00, .OAMData_86 ; SPRITE_ANIM_FRAME_IDX_8C
+	dbw $00, .OAMData_PcCursor1 ; SPRITE_ANIM_FRAME_IDX_8D
+	dbw $00, .OAMData_PcCursor2 ; SPRITE_ANIM_FRAME_IDX_8E
 
 .OAMData_02:
 	db 1
@@ -632,3 +634,21 @@ SpriteAnimOAMData:
 .OAMData_86:
 	db 1
 	dsprite  2,  0,  2,  0, $00, $0
+
+.OAMData_PcCursor1:
+	db 6
+	dsprite  0, -1,  0,  0, $00, $1
+	dsprite  0, -1, -1,  0, $01, $1
+	dsprite -1,  0, -1,  0, $02, $4
+	dsprite  0,  0, -1,  0, $03, $4
+	dsprite -1,  0,  0,  0, $02, $4 | X_FLIP
+	dsprite  0,  0,  0,  0, $03, $4 | X_FLIP
+
+.OAMData_PcCursor2:
+	db 6
+	dsprite  0, -3,  0,  0, $00, $1
+	dsprite  0, -3, -1,  0, $01, $1
+	dsprite -1, -2, -1,  0, $02, $4
+	dsprite  0, -2, -1,  0, $03, $4
+	dsprite -1, -2,  0,  0, $02, $4 | X_FLIP
+	dsprite  0, -2,  0,  0, $03, $4 | X_FLIP

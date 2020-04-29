@@ -48,6 +48,7 @@ SpriteAnimFrameData:
 	dw .Frameset_40 ; SPRITE_ANIM_FRAMESET_CELEBI_LEFT
 	dw .Frameset_41 ; SPRITE_ANIM_FRAMESET_CELEBI_RIGHT
 	dw .Frameset_42 ; SPRITE_ANIM_FRAMESET_MAX_STAT_SPARKLE
+	dw .Frameset_43 ; SPRITE_ANIM_FRAMESET_PC_CURSOR
 
 ; OAM idx (see SpriteAnimOAMData), flip flags/duration
 .Frameset_00:
@@ -325,4 +326,9 @@ SpriteAnimFrameData:
 
 .Frameset_42:
 	frame SPRITE_ANIM_FRAME_IDX_8C, 32
+	dorestart
+
+.Frameset_43:
+	frame SPRITE_ANIM_FRAME_IDX_8D, 45
+	frame SPRITE_ANIM_FRAME_IDX_8E, 45
 	dorestart
