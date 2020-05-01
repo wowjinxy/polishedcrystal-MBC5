@@ -109,6 +109,10 @@ MusicPlayer::
 	call ClearTileMap
 
 ; Load palette
+	ld a, LOW(LCDBillsPC1)
+	ldh [hFunctionTargetLo], a
+	ld a, HIGH(LCDBillsPC1)
+	ldh [hFunctionTargetHi], a
 	ld hl, rIE
 	set LCD_STAT, [hl]
 	ldh a, [rSVBK]
