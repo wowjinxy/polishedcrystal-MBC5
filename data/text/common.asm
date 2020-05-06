@@ -2758,7 +2758,7 @@ UnknownText_0x1c1261::
 	line "with the ID number"
 
 	para "of @"
-	text_from_ram wBuffer1
+	deciram wBufferMonID, 2, 5
 	text " in"
 	line "your party."
 	prompt
@@ -2771,7 +2771,7 @@ UnknownText_0x1c12ae::
 	line "with the ID number"
 
 	para "of @"
-	text_from_ram wBuffer1
+	deciram wBufferMonID, 2, 5
 	text " in Box"
 	line "“@"
 	text_from_ram wStringBuffer2
