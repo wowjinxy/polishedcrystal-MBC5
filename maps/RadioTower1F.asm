@@ -68,10 +68,11 @@ ReceptionistScript_0x5cd3d:
 	closetext
 	applymovement RADIOTOWER1F_FELICITY, MovementData_0x5ce74
 	opentext
-	ifequal 1, .FirstPlace
-	ifequal 2, .SecondPlace
+	ifequal 5, .FirstPlace
+	ifequal 4, .SecondPlace
 	ifequal 3, .ThirdPlace
-	ifequal 4, .FourthPlace
+	ifequal 2, .FourthPlace
+	ifequal 1, .FifthPlace
 	jumpopenedtext UnknownText_0x5d0c0
 
 .FirstPlace:
@@ -113,6 +114,17 @@ ReceptionistScript_0x5cd3d:
 	waitsfx
 	buttonsound
 	giveitem PP_UP
+	iffalse_jumpopenedtext UnknownText_0x5d0e6
+	itemnotify
+	setflag ENGINE_LUCKY_NUMBER_SHOW
+	thisopenedtext
+
+.FifthPlace:
+	writetext WonFifthPlaceText
+	playsound SFX_3RD_PLACE
+	waitsfx
+	buttonsound
+	giveitem RARE_CANDY
 	iffalse_jumpopenedtext UnknownText_0x5d0e6
 	itemnotify
 	setflag ENGINE_LUCKY_NUMBER_SHOW
@@ -315,6 +327,16 @@ WonFourthPlaceText:
 
 	para "You've won fourth"
 	line "prize, a PP Up."
+	done
+
+WonFifthPlaceText:
+	text "Ooh, you've"
+	line "matched the last"
+	cont "number."
+
+	para "You've won fifth"
+	line "prize, a"
+	cont "Rare Candy."
 	done
 
 UnknownText_0x5d0c0:

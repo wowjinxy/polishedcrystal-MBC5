@@ -87,8 +87,7 @@ wMovementBuffer:: ds 55
 
 NEXTU
 ; other buffers
-wEarthquakeMovementDataBuffer::
-wLuckyNumberDigitsBuffer:: ds 5
+wEarthquakeMovementDataBuffer:: ds 5
 
 NEXTU
 ; unidentified
