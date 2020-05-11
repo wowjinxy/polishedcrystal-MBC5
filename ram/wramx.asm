@@ -10,8 +10,6 @@ UNION
 wBufferMonNick:: ds MON_NAME_LENGTH
 wBufferMonOT:: ds NAME_LENGTH
 wBufferMon:: party_struct wBufferMon
-	ds 8
-wMonOrItemNameBuffer:: ds NAME_LENGTH
 
 NEXTU
 ; mail temp storage
@@ -102,7 +100,6 @@ wMoveScreenCursor:: db ; cursor position
 wMoveScreenOffset:: db ; offset from top of the list in view
 wMoveScreenNumMoves:: db ; amount of moves in the list
 wMoveScreenMoves:: ds 55
-
 NEXTU
 ; miscellaneous
 wTempDayOfWeek:: db
@@ -112,9 +109,15 @@ wTempDayOfWeek:: db
 wStartFlypoint:: db
 wEndFlypoint:: db
 
-	ds 55
+
+ENDU
 
 UNION
+
+	ds 8
+
+wMonOrItemNameBuffer:: ds NAME_LENGTH
+NEXTU
 ; TODO: replace with meaningful values (see pokecrystal commit 2184b60)
 wEngineBuffer1:: db
 wEngineBuffer2:: db
@@ -219,8 +222,6 @@ NEXTU
 ; phone script pointer
 	ds 10
 wPhoneScriptPointer:: dw
-
-ENDU
 
 ENDU
 
