@@ -373,7 +373,7 @@ GetSpeed::
 	jr z, .quick_powder
 	cp HELD_IRON_BALL
 	ln a, 1, 2 ; x0.5
-	jr .apply_item_mod
+	jr z, .apply_item_mod
 	cp HELD_CHOICE
 	jr nz, .done
 	ld a, c
@@ -687,18 +687,23 @@ PerformMove:
 	xor a
 	ld [wDamageTaken], a
 	ld [wDamageTaken + 1], a
+	ld a, BATTLE_VARS_SUBSTATUS2
+	call GetBattleVarAddr
+	res SUBSTATUS_IN_ABILITY, [hl]
 	ld a, BATTLE_VARS_MOVE
 	call GetBattleVar
 	cp DESTINY_BOND
 	jr z, .skip_destinybond_reset
-	ld a, BATTLE_VARS_SUBSTATUS2
-	call GetBattleVarAddr
 	res SUBSTATUS_DESTINY_BOND, [hl]
 .skip_destinybond_reset
 	call HasUserFainted
 	jr z, .end_protect
 	farcall DoTurn
 .end_protect
+	ld a, BATTLE_VARS_SUBSTATUS2
+	call GetBattleVarAddr
+	res SUBSTATUS_IN_ABILITY, [hl]
+
 	ld a, BATTLE_VARS_SUBSTATUS1_OPP
 	call GetBattleVarAddr
 	res SUBSTATUS_PROTECT, [hl]
@@ -939,9 +944,7 @@ ForceDeferredSwitch:
 
 .anim_done
 	; Clear battle UI display
-	hlcoord TEXTBOX_INNERX, TEXTBOX_INNERY
-	lb bc, TEXTBOX_INNERH - 1, TEXTBOX_INNERW
-	call ClearBox
+	call ClearSpeechBox
 
 	ldh a, [hBattleTurn]
 	and a
@@ -1007,6 +1010,7 @@ GetBothSwitchTarget:
 	jr GetEnemySwitchTarget
 
 GetPlayerSwitchTarget:
+; Returns switch target in a
 	call LoadStandardMenuDataHeader
 	call SetUpBattlePartyMenu_NoLoop
 	call ForcePickSwitchMonInBattle
@@ -1018,6 +1022,9 @@ GetPlayerSwitchTarget:
 	ld a, CGB_BATTLE_COLORS
 	call GetCGBLayout
 	call SetPalettes
+	ld a, [wCurPartyMon]
+	inc a
+	ld [wPlayerSwitchTarget], a
 	ld a, [wLinkMode]
 	and a
 	ld a, 1
@@ -1025,24 +1032,23 @@ GetPlayerSwitchTarget:
 	call nz, LinkBattleSendReceiveAction
 	xor a
 	ld [wBattlePlayerAction], a
-	ld a, [wCurPartyMon]
-	inc a
-	ld [wPlayerSwitchTarget], a
+	ld a, [wPlayerSwitchTarget]
 	ret
 
 GetEnemySwitchTarget:
+; Returns switch target in a
 	ld a, [wLinkMode]
 	and a
 	jr z, .ai_switch
 	; we've already performed LinkBattleSendReceiveAction
 	ld a, [wBattleAction]
-	sub BATTLEACTION_SWITCH1 - 1
-	ld [wEnemySwitchTarget], a
-	ret
+	sub BATTLEACTION_SWITCH1 - 1 ; -1 to get the switch offset
+	jr .done
 .ai_switch
 	farcall GetSwitchScores
 	ld a, [wEnemySwitchMonParam]
-	inc a
+	inc a ; switchtarget is 1-indexed
+.done
 	ld [wEnemySwitchTarget], a
 	ret
 
@@ -1138,6 +1144,20 @@ SendInUserPkmn:
 	ld a, ~(1 << SUBSTATUS_RAGE | 1 << SUBSTATUS_FLINCHED | 1 << SUBSTATUS_CURLED)
 	and [hl]
 	ld [hl], a
+
+	; Reset Disable and Encore statuses
+	ldh a, [hBattleTurn]
+	and a
+	ld hl, wPlayerDisableCount
+	ld de, wPlayerEncoreCount
+	jr z, .got_encore_and_disable
+	ld hl, wEnemyDisableCount
+	ld de, wEnemyEncoreCount
+.got_encore_and_disable
+	xor a
+	ld [hl], a
+	ld [de], a
+
 	ldh a, [hBattleTurn]
 	and a
 	jr nz, .reset_used_moves_done
@@ -3265,14 +3285,10 @@ DoStealStatBoostBerry:
 
 QuarterPinchOrGluttony::
 ; Returns z if we're in a 1/4-HP pinch or if we have Gluttony
+	call GetQuarterMaxHP
 	call GetTrueUserAbility
 	cp GLUTTONY
-	jr z, .gluttony
-	call GetQuarterMaxHP
-	jr .compare_hp
-.gluttony
-	call GetHalfMaxHP
-.compare_hp
+	call z, GetHalfMaxHP
 	call CompareHP
 	ret nc
 	xor a
@@ -4149,7 +4165,7 @@ BattleMenuPKMN_Loop:
 	farcall ManagePokemonMoves
 	call GetMonBackpic
 
-.Cancel:
+.Cancel: ; no-optimize stub jump
 	jr BattleMenuPKMN_Loop
 
 .Stats:
@@ -4456,13 +4472,9 @@ CheckRunSpeed:
 	ld a, h
 	sbc d
 	jp nc, .can_escape
-	; multiply player speed by 32
-	add hl, hl ; x2
-	add hl, hl ; x4
-	add hl, hl ; x8
-	add hl, hl ; x16
-	add hl, hl ; x32
-
+rept 5 ; multiply player speed by 32
+	add hl, hl
+endr
 	; store PSpeed*32 into dividend
 	ld a, h
 	ldh [hDividend], a
@@ -4922,15 +4934,117 @@ SetChoiceLock:
 	pop hl
 	ret
 
+GetDisableEncoreMoves:
+; Sets d to disabled move ID and e to encored/choiced move ID.
+; Preserves bc, hl
+	push hl
+	push bc
+	ldh a, [hBattleTurn]
+	and a
+	ld bc, wPlayerDisableCount
+	ld de, wPlayerEncoreCount
+	ld hl, wBattleMonMoves
+	jr z, .got_disable_encore
+	ld bc, wEnemyDisableCount
+	ld de, wEnemyEncoreCount
+	ld hl, wEnemyMonMoves
+.got_disable_encore
+	ld a, [bc]
+	call .GetMove
+	ld b, a
+	ld a, [de]
+	ld d, b
+	call .GetMove
+	ld e, a
+	pop bc
+	pop hl
+	ret
+
+.GetMove:
+	swap a
+	and $f
+	ret z
+	dec a
+	push hl
+	ld b, 0
+	ld c, a
+	add hl, bc
+	ld a, [hl]
+	pop hl
+	ret
+
+SetDisableEncoreMoves:
+; With disabled move ID in d, encored move ID in e, set disabled/encored move
+; state if the user still knows the move.
+	push hl
+	push bc
+	ldh a, [hBattleTurn]
+	and a
+	ld hl, wBattleMonMoves
+	jr z, .got_moves
+	ld hl, wEnemyMonMoves
+.got_moves
+	push hl
+	ld a, d
+	and a
+	jr z, .disable_done
+	ld d, 0
+	farcall UserKnowsMove
+	jr nz, .disable_done
+	inc c
+	swap c
+	ld d, c
+.disable_done
+	pop hl
+	ld a, e
+	and a
+	jr z, .encore_done
+	ld e, 0
+	farcall UserKnowsMove
+	jr nz, .encore_done
+	inc c
+	swap c
+	ld e, c
+.encore_done
+	ldh a, [hBattleTurn]
+	and a
+	ld bc, wPlayerDisableCount
+	ld hl, wPlayerEncoreCount
+	jr z, .got_disable_count
+	ld bc, wEnemyDisableCount
+	ld hl, wEnemyEncoreCount
+.got_disable_count
+	; If the move no longer exist in learnset, remove encore/disable status
+	ld a, d
+	and a
+	jr z, .reset_disable
+	ld a, [bc]
+	and $f
+	or d
+.reset_disable
+	ld [bc], a
+
+	ld a, e
+	and a
+	jr z, .reset_encore
+	ld a, [hl]
+	and $f
+	or e
+.reset_encore
+	ld [hl], a
+	pop bc
+	pop hl
+	ret
+
 SwapBattleMoves:
+	call GetDisableEncoreMoves
+	push de
 	ld hl, wBattleMonMoves
 	call .swap_bytes
 	ld hl, wBattleMonPP
 	call .swap_bytes
-	ld hl, wPlayerDisableCount
-	call .swap_high
-	ld hl, wPlayerEncoreCount
-	call .swap_high
+	pop de
+	call SetDisableEncoreMoves
 
 ; Fixes the COOLTRAINER glitch
 	ld a, [wPlayerSubStatus2]
@@ -4965,29 +5079,6 @@ SwapBattleMoves:
 	ld [hl], a
 	ld a, b
 	ld [de], a
-	ret
-
-.swap_high
-	ld a, [wMenuCursorY]
-	ld d, a
-	ld a, [wMoveSwapBuffer]
-	ld e, a
-	swap d
-	swap e
-	call .do_high_swap
-	ld a, d
-	ld d, e
-	ld e, a
-
-.do_high_swap
-	ld a, [hl]
-	and $f0
-	cp d
-	ret nz
-	ld a, $f
-	and [hl]
-	add e
-	ld [hl], a
 	ret
 
 MoveInfoBox:
@@ -5305,9 +5396,6 @@ ParseEnemyAction:
 	jr z, .not_linked
 	call EmptyBattleTextBox
 	call LoadTileMapToTempTileMap
-	ld a, [wBattlePlayerAction]
-	and a
-	call z, LinkBattleSendReceiveAction
 	call Call_LoadTempTileMapToTileMap
 	ld a, [wBattleAction]
 	cp BATTLEACTION_STRUGGLE
@@ -6776,14 +6864,15 @@ AnimateExpBar:
 	cp MAX_LEVEL
 	jp nc, .finish
 
-	ldh a, [hProduct + 3]
+	ldh a, [hQuotient + 2]
 	ld [wd004], a
 	push af
-	ldh a, [hProduct + 2]
+	ldh a, [hQuotient + 1]
 	ld [wd003], a
 	push af
-	xor a
+	ld a, [hQuotient]
 	ld [wd002], a
+	push af
 	xor a ; PARTYMON
 	ld [wMonType], a
 	predef CopyPkmnToTempMon
@@ -6887,9 +6976,11 @@ AnimateExpBar:
 	call .LoopBarAnimation
 	call TerminateExpBarSound
 	pop af
-	ldh [hProduct + 2], a
+	ldh [hQuotient], a
 	pop af
-	ldh [hProduct + 3], a
+	ldh [hQuotient + 1], a
+	pop af
+	ldh [hQuotient + 2], a
 
 .finish
 	pop bc

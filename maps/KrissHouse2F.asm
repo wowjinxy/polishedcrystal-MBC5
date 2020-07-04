@@ -122,7 +122,7 @@ endr
 	giveitem GOLD_LEAF, 99
 	giveitem BOTTLE_CAP, 99
 	giveitem MULCH, 99
-	giveitem MINT, 99
+	giveitem MINT_LEAF, 99
 	giveitem ODD_SOUVENIR, 10
 	giveitem ARMOR_SUIT, 1
 	; all decorations
@@ -277,7 +277,9 @@ endr
 ;	givepoke MAROWAK,   ALOLAN_FORM, 50
 ;	givepoke PONYTA,    GALARIAN_FORM, 50
 ;	givepoke RAPIDASH,  GALARIAN_FORM, 50
-	givepoke WEEZING,   GALARIAN_FORM, 50
+	givepoke SLOWPOKE,  GALARIAN_FORM, 50
+	givepoke SLOWBRO,   GALARIAN_FORM, 50
+;	givepoke WEEZING,   GALARIAN_FORM, 50
 	; fill pokedex
 ;	callasm FillPokedex
 	; intro events
@@ -354,7 +356,7 @@ endc
 
 PokemonJournalProfElmScript:
 	setflag ENGINE_READ_PROF_ELM_JOURNAL
-	thistext
+	jumpthistext
 
 	text "#mon Journal"
 

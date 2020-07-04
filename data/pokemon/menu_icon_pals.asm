@@ -259,6 +259,24 @@ MenuMonIconColors::
 	iconpal PINK, BLUE ; SYLVEON
 	iconpal RED, BLUE ; EGG
 
+rept NUM_UNOWN - 1
+	iconpal GRAY, BLUE
+endr
+
+rept 4
+	iconpal PURPLE, BROWN ; ARBOK
+endr
+
+rept 5
+	iconpal RED, BLUE ; PIKACHU
+endr
+
+	iconpal RED, BLUE ; PICHU
+
+rept NUM_MAGIKARP - 1
+	iconpal RED, BROWN ; MAGIKARP
+endr
+
 	iconpal RED, RED ; GYARADOS, GYARADOS_RED_FORM
 	iconpal GRAY, GRAY ; MEWTWO, MEWTWO_ARMORED_FORM
 	iconpal GRAY, RED ; RATTATA, ALOLAN_FORM
@@ -281,4 +299,6 @@ MenuMonIconColors::
 	iconpal BROWN, PURPLE ; MAROWAK, ALOLAN_FORM
 	iconpal BLUE, PURPLE ; PONYTA, GALARIAN_FORM
 	iconpal BLUE, PURPLE ; RAPIDASH, GALARIAN_FORM
+	iconpal PURPLE, BROWN ; SLOWPOKE, GALARIAN_FORM
+	iconpal PURPLE, BROWN ; SLOWBRO, GALARIAN_FORM
 	iconpal GRAY, BROWN ; WEEZING, GALARIAN_FORM

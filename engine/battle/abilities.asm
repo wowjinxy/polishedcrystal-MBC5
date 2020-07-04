@@ -233,8 +233,12 @@ IntimidateAbility:
 	ld hl, NoIntimidateAbilities
 	call IsInArray
 	jr nc, .intimidate_ok
+	call DisableAnimations
+	call ShowAbilityActivation
+	call ShowEnemyAbilityActivation
 	ld hl, BattleText_IntimidateResisted
-	jp StdBattleTextBox
+	call StdBattleTextBox
+	jp EnableAnimations
 
 .intimidate_ok
 	call DisableAnimations
@@ -1168,11 +1172,6 @@ EndturnAbilitiesA:
 
 HandleAbilities:
 ; Abilities handled at the end of the turn.
-	call SetFastestTurn
-	call .do_it
-	call SwitchTurn
-
-.do_it
 	call HasUserFainted
 	ret z
 	ld hl, EndTurnAbilities
@@ -1248,6 +1247,15 @@ PickupAbility:
 	and a
 	ret nz
 
+	; Wild opponents may not use this ability (prevent item duplication)
+	ldh a, [hBattleTurn]
+	and a
+	jr z, .player
+	ld a, [wBattleMode]
+	dec a
+	ret z
+
+.player
 	; Does the opponent have a consumed item?
 	push hl
 	call GetOpponentUsedItemAddr
@@ -1762,11 +1770,8 @@ _GetOpponentAbilityAfterMoldBreaker::
 	ld b, a
 	call GetTrueUserAbility
 	cp MOLD_BREAKER
-	jr z, .cont_check
 	ld a, b
-	jr .end
-.cont_check
-	ld a, b
+	jr nz, .end
 	ld de, 1
 	push hl
 	push bc
@@ -1774,11 +1779,9 @@ _GetOpponentAbilityAfterMoldBreaker::
 	call IsInArray
 	pop bc
 	pop hl
-	jr c, .suppressed
 	ld a, b
-	jr .end
-.suppressed:
-	ld a, NO_ABILITY
+	jr nc, .end
+	xor a ; ld a, NO_ABILITY
 .end
 	pop bc
 	pop de

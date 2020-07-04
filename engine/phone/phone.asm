@@ -66,7 +66,7 @@ GetRemainingSpaceInPhoneList:
 	cp -1
 	jr z, .done
 	cp c
-	jr z, .elm_or_mom
+	jr z, .loop
 	push bc
 	push hl
 	ld c, a
@@ -78,8 +78,6 @@ GetRemainingSpaceInPhoneList:
 .elm_or_mom_in_list
 	pop hl
 	pop bc
-
-.elm_or_mom
 	jr .loop
 
 .done
@@ -380,6 +378,14 @@ UnknownScript_0x90209:
 	scall UnknownScript_0x90657
 	return
 
+UnknownScript_0x90657:
+	farwritetext UnknownText_0x1c558b
+	end
+
+PhoneScript_JustTalkToThem:
+	farwritetext UnknownText_0x1c55ac
+	end
+
 LoadCallerScript:
 	ld a, e
 	ld [wCurCaller], a
@@ -404,12 +410,7 @@ WrongNumber:
 	db TRAINER_NONE, PHONE_00
 	dba .script
 .script
-	writetext .text
-	end
-.text
-	; Huh? Sorry, wrong number!
-	text_jump UnknownText_0x1c5565
-	text_end
+	farjumptext UnknownText_0x1c5565
 
 Script_ReceivePhoneCall:
 	refreshscreen
@@ -688,21 +689,3 @@ GetCallerLocation:
 INCLUDE "data/phone/phone_contacts.asm"
 
 INCLUDE "data/phone/special_calls.asm"
-
-UnknownScript_0x90657:
-	writetext UnknownText_0x9065b
-	end
-
-UnknownText_0x9065b:
-	; That number is out of the area.
-	text_jump UnknownText_0x1c558b
-	text_end
-
-PhoneScript_JustTalkToThem:
-	writetext UnknownText_0x90664
-	end
-
-UnknownText_0x90664:
-	; Just go talk to that person!
-	text_jump UnknownText_0x1c55ac
-	text_end

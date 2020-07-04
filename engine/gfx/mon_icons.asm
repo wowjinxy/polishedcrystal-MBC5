@@ -8,21 +8,20 @@ LoadOverworldMonIcon:
 	ld a, [wCurIconForm]
 	ld b, a
 	; bc = index
-	call GetSpeciesAndFormIndex
-	; de = icon pointer
+	call GetCosmeticSpeciesAndFormIndex
 	ld hl, IconPointers
 	add hl, bc
 	add hl, bc
+	add hl, bc
+	; b = icon bank
+	ld a, [hli]
+	ld b, a
+	; de = icon pointer
 	ld a, [hli]
 	ld d, [hl]
 	ld e, a
-; Extended icon bank routine by com3tiin
-; http://www.pokecommunity.com/showthread.php?t=338470
-	ld a, [wCurIcon]
-	cp TAUROS ; first mon in "Mon Icons 2"
-	lb bc, BANK("Mon Icons 1"), 8
-	ret c
-	ld b, BANK("Mon Icons 2")
+	; c = tile count
+	ld c, 8
 	ret
 
 SetMenuMonIconColor:
@@ -151,7 +150,7 @@ _GetMonIconPalette:
 	push af
 
 	; bc = index
-	call GetSpeciesAndFormIndex
+	call GetCosmeticSpeciesAndFormIndex
 	dec bc
 	ld hl, MenuMonIconColors
 	add hl, bc
@@ -186,13 +185,10 @@ LoadPartyMenuMonIcon:
 	ret z
 	ld d, a
 	call ItemIsMail
-	jr c, .mail
-	ld a, SPRITE_ANIM_FRAMESET_PARTY_MON_WITH_ITEM
-	jr .okay
-
-.mail
-	ld a, SPRITE_ANIM_FRAMESET_PARTY_MON_WITH_MAIL
-.okay
+	; a = carry ? SPRITE_ANIM_FRAMESET_PARTY_MON_WITH_MAIL : SPRITE_ANIM_FRAMESET_PARTY_MON_WITH_ITEM
+	assert SPRITE_ANIM_FRAMESET_PARTY_MON_WITH_MAIL + 1 == SPRITE_ANIM_FRAMESET_PARTY_MON_WITH_ITEM
+	sbc a
+	add SPRITE_ANIM_FRAMESET_PARTY_MON_WITH_ITEM
 	ld hl, SPRITEANIMSTRUCT_FRAMESET_ID
 	add hl, bc
 	ld [hl], a

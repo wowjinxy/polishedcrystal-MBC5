@@ -466,11 +466,9 @@ PokegearMap_CheckRegion:
 	cp SHAMOUTI_LANDMARK
 	jr nc, .orange
 	cp KANTO_LANDMARK
-	jr nc, .kanto
-	ld a, 3
-	jr .done
-.kanto
-	ld a, 5
+	; a = carry ? 3 (johto) : 5 (kanto)
+	sbc a
+	sbc -5
 	jr .done
 .orange
 	ld a, 7
@@ -743,7 +741,7 @@ PokegearRadio_Init:
 	ld hl, SPRITEANIMSTRUCT_TILE_ID
 	add hl, bc
 	ld [hl], $8
-	call _UpdateRadioStation
+	call UpdateRadioStation
 	ld hl, wJumptableIndex
 	inc [hl]
 	ret
@@ -1332,9 +1330,6 @@ INCBIN "gfx/pokegear/phone.tilemap.rle"
 ClockTilemapRLE:
 INCBIN "gfx/pokegear/clock.tilemap.rle"
 
-_UpdateRadioStation:
-	jr UpdateRadioStation
-
 ; called from engine/sprite_anims.asm
 
 AnimateTuningKnob:
@@ -1364,7 +1359,7 @@ AnimateTuningKnob:
 	ret z
 	dec [hl]
 	dec [hl]
-	jr .update
+	jr UpdateRadioStation
 
 .up
 	ld hl, wRadioTuningKnob
@@ -1373,7 +1368,8 @@ AnimateTuningKnob:
 	ret nc
 	inc [hl]
 	inc [hl]
-.update
+	; fallthrough
+
 UpdateRadioStation:
 	ld hl, wRadioTuningKnob
 	ld d, [hl]
@@ -2621,6 +2617,7 @@ GetNextTownMapTilePalette:
 	srl a
 	jr c, .odd
 ; Even-numbered tile ids take the bottom nybble...
+	; hl += a
 	add l
 	ld l, a
 	adc h
@@ -2632,6 +2629,7 @@ GetNextTownMapTilePalette:
 
 .odd
 ; ...and odd ids take the top.
+	; hl += a
 	add l
 	ld l, a
 	adc h

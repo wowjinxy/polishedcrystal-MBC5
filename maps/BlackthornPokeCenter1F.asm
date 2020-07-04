@@ -22,7 +22,7 @@ BlackthornPokeCenter1F_MapScriptHeader:
 
 PokemonJournalClairScript:
 	setflag ENGINE_READ_CLAIR_JOURNAL
-	thistext
+	jumpthistext
 
 	text "#mon Journal"
 
@@ -47,12 +47,12 @@ ProfOaksAide4Script:
 	count_seen_caught
 	checkcode VAR_DEXCAUGHT
 	ifgreater 59, .HereYouGo
-	thisopenedtext
+	jumpthisopenedtext
 
 	text "Let's see…"
 	line "Uh-oh! You've only"
 
-	para "caught @"
+	para "caught "
 	deciram wd003, 1, 3
 	text " kinds"
 	line "of #mon."
@@ -68,7 +68,7 @@ ProfOaksAide4Script:
 	verbosegiveitem LUCKY_EGG
 	iffalse_jumpopenedtext .NoRoomText
 	setevent EVENT_GOT_LUCKY_EGG_FROM_PROF_OAKS_AIDE
-	thisopenedtext
+	jumpthisopenedtext
 
 .ExplainText:
 	text "That Lucky Egg"
@@ -102,7 +102,7 @@ ProfOaksAide4Script:
 	text "Let's see…"
 	line "Great job! You've"
 
-	para "caught @"
+	para "caught "
 	deciram wd003, 1, 3
 	text " kinds"
 	line "of #mon."

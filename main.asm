@@ -320,7 +320,7 @@ INCLUDE "engine/events/field_moves.asm"
 INCLUDE "engine/events/magnet_train.asm"
 INCLUDE "engine/gfx/sprites.asm"
 INCLUDE "engine/gfx/mon_icons.asm"
-INCLUDE "data/pokemon/menu_icons.asm"
+INCLUDE "data/pokemon/menu_icon_pointers.asm"
 
 
 SECTION "bank24", ROMX
@@ -406,18 +406,12 @@ INCLUDE "gfx/pokemon/anim_pointers.asm"
 INCLUDE "gfx/pokemon/anims.asm"
 INCLUDE "gfx/pokemon/extra_pointers.asm"
 INCLUDE "gfx/pokemon/extras.asm"
-INCLUDE "gfx/pokemon/variant_anim_pointers.asm"
-INCLUDE "gfx/pokemon/variant_anims.asm"
-INCLUDE "gfx/pokemon/variant_extra_pointers.asm"
-INCLUDE "gfx/pokemon/variant_extras.asm"
 
 
 SECTION "Pic Animations Bitmasks", ROMX
 
 INCLUDE "gfx/pokemon/bitmask_pointers.asm"
 INCLUDE "gfx/pokemon/bitmasks.asm"
-INCLUDE "gfx/pokemon/variant_bitmask_pointers.asm"
-INCLUDE "gfx/pokemon/variant_bitmasks.asm"
 
 
 SECTION "Pic Animations Frames 1", ROMX
@@ -429,8 +423,6 @@ INCLUDE "gfx/pokemon/kanto_frames.asm"
 SECTION "Pic Animations Frames 2", ROMX
 
 INCLUDE "gfx/pokemon/johto_frames.asm"
-INCLUDE "gfx/pokemon/variant_frame_pointers.asm"
-INCLUDE "gfx/pokemon/variant_frames.asm"
 
 
 SECTION "bank38", ROMX
@@ -477,7 +469,6 @@ INCLUDE "gfx/emotes.asm"
 INCLUDE "engine/overworld/warp_connection.asm"
 INCLUDE "engine/battle/used_move_text.asm"
 INCLUDE "engine/gfx/item_icons.asm"
-INCLUDE "gfx/items.asm"
 
 
 SECTION "Title", ROMX
@@ -555,6 +546,11 @@ SECTION "Crystal Events", ROMX
 
 INCLUDE "engine/events/battle_tower/load_trainer.asm"
 INCLUDE "engine/events/odd_egg.asm"
+
+
+SECTION "Type Chart", ROMX
+
+INCLUDE "engine/items/type_chart.asm"
 
 
 SECTION "VWF", ROMX

@@ -253,15 +253,38 @@ GetNick::
 	rst CopyBytes
 	jp PopBCDEHL
 
+GetCosmeticSpeciesAndFormIndex::
+; input: c = species, b = form
+; output: bc = extended index
+	ld hl, CosmeticSpeciesAndFormTable - 1
+	call _GetSpeciesAndFormIndexHelper
+	ret c
+	ld bc, -CosmeticSpeciesAndFormTable
+	jr _GetSpeciesAndFormIndexFinal
+
 GetSpeciesAndFormIndex::
 ; input: c = species, b = form
 ; output: bc = extended index
 	ld hl, VariantSpeciesAndFormTable - 1
+	call _GetSpeciesAndFormIndexHelper
+	ret c
+	ld bc, -VariantSpeciesAndFormTable
+_GetSpeciesAndFormIndexFinal:
+	add hl, bc
+	srl h
+	rr l
+	dec hl
+	inc h
+	ld b, h
+	ld c, l
+	ret
+
+_GetSpeciesAndFormIndexHelper:
 	ld a, b
 	and FORM_MASK
-	jr nz, .ok
-	inc a ; PLAIN_FORM
-.ok
+	jr z, .normal ; NO_FORM?
+	cp PLAIN_FORM
+	jr z, .normal
 	ld b, a
 .next
 	inc hl
@@ -274,16 +297,9 @@ GetSpeciesAndFormIndex::
 	ld a, [hli]
 	cp b
 	jr nz, .loop
-	ld bc, -VariantSpeciesAndFormTable
-	add hl, bc
-	srl h
-	rr l
-	dec hl
-	inc h
-	ld b, h
-	ld c, l
 	ret
 
 .normal
 	ld b, 0
+	scf
 	ret

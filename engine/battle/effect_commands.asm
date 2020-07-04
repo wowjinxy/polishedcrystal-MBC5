@@ -300,11 +300,9 @@ BattleCommand_checkturn:
 	bit FRZ, [hl]
 	jr z, .not_frozen
 
-	; Flame Wheel, Sacred Fire, Scald, and Flare Blitz thaw the user.
+	; Sacred Fire, Scald, and Flare Blitz thaw the user.
 	ld a, BATTLE_VARS_MOVE_ANIM
 	call GetBattleVar
-	cp FLAME_WHEEL
-	jr z, .thaw
 	cp SACRED_FIRE
 	jr z, .thaw
 	cp SCALD
@@ -586,6 +584,17 @@ MoveDisabled:
 	ld hl, DisabledMoveText
 	jp StdBattleTextBox
 
+GenericHitAnim:
+	; Flicker the monster pic unless flying or underground.
+	xor a
+	ld [wNumHits], a
+	ld de, ANIM_HIT_CONFUSION
+	ld a, BATTLE_VARS_SUBSTATUS3_OPP
+	call GetBattleVar
+	and 1 << SUBSTATUS_FLYING | 1 << SUBSTATUS_UNDERGROUND
+	call z, PlayFXAnimID
+	ret
+
 HitConfusion:
 	ld hl, HurtItselfText
 	call StdBattleTextBox
@@ -596,16 +605,6 @@ HitConfusion:
 	call HitSelfInConfusion
 	call ConfusedDamageCalc
 	call BattleCommand_lowersub
-
-	xor a
-	ld [wNumHits], a
-
-	; Flicker the monster pic unless flying or underground.
-	ld de, ANIM_HIT_CONFUSION
-	ld a, BATTLE_VARS_SUBSTATUS3_OPP
-	call GetBattleVar
-	and 1 << SUBSTATUS_FLYING | 1 << SUBSTATUS_UNDERGROUND
-	call z, PlayFXAnimID
 
 	ldh a, [hBattleTurn]
 	and a
@@ -990,6 +989,20 @@ BattleCommand_doturn:
 	jp EndMoveEffect
 
 BattleCommand_hastarget:
+	ld a, BATTLE_VARS_MOVE_EFFECT
+	call GetBattleVar
+	cp EFFECT_FLY
+	jr z, .chargeup_move
+	cp EFFECT_SOLAR_BEAM
+	jr nz, .regular
+.chargeup_move
+	; We should still allow chargeup even if user is fainted
+	ld a, BATTLE_VARS_SUBSTATUS3
+	call GetBattleVar
+	and 1 << SUBSTATUS_CHARGED
+	jr z, .not_fainted
+
+.regular
 	; If the target is fainted, abort the move
 	call HasOpponentFainted
 	jr nz, .not_fainted
@@ -1274,6 +1287,13 @@ BattleCommand_stab:
 	ld a, [hld]
 	ldh [hMultiplicand + 2], a
 	call Multiply
+
+	; Parental Bond
+	ld a, BATTLE_VARS_SUBSTATUS2
+	call GetBattleVar
+	bit SUBSTATUS_IN_ABILITY, a
+	ld a, $14
+	call nz, MultiplyAndDivide
 
 	; Second ability pass
 	push hl
@@ -1625,6 +1645,12 @@ BattleCommand_damagevariation:
 	ret
 
 BattleCommand_checkhit:
+	; Skip accuracy checks for Magic Bounce/Parental Bond 2nd hit
+	ld a, BATTLE_VARS_SUBSTATUS2
+	call GetBattleVar
+	bit SUBSTATUS_IN_ABILITY, a
+	ret nz
+
 	call .DreamEater
 	ld a, ATKFAIL_IMMUNE
 	jp z, .Miss_skipset
@@ -1838,7 +1864,6 @@ BattleCommand_checkhit:
 	jr z, .blocked
 .not_blocked
 	xor a
-	and a
 	ret
 .blocked
 	ld a, 1
@@ -2047,6 +2072,18 @@ BattleCommand_lowersub:
 	jp BattleCommand_movedelay
 
 BattleCommand_moveanim:
+	; Check for Parental Bond hit
+	ld a, BATTLE_VARS_SUBSTATUS2
+	call GetBattleVar
+	bit SUBSTATUS_IN_ABILITY, a
+	jr z, .not_parental_bond
+
+	; Flicker the monster pic unless flying or underground.
+	call SwitchTurn
+	call GenericHitAnim
+	jp SwitchTurn
+
+.not_parental_bond
 	call BattleCommand_lowersub
 	call BattleCommand_moveanimnosub
 	jp BattleCommand_raisesub
@@ -2555,6 +2592,12 @@ BattleCommand_startloop:
 	ret
 
 BattleCommand_supereffectivetext:
+	; Only print the message once for Parental Bond
+	ld a, BATTLE_VARS_SUBSTATUS2
+	call GetBattleVar
+	bit SUBSTATUS_IN_ABILITY, a
+	ret nz
+
 	ld a, BATTLE_VARS_SUBSTATUS3
 	call GetBattleVar
 	bit SUBSTATUS_IN_LOOP, a
@@ -2957,10 +3000,32 @@ BattleCommand_posthiteffects:
 .checkfaint
 	; if we fainted, abort the rest of the move sequence
 	call HasUserFainted
-	ret nz
+	jr nz, .check_parental_bond
 	call EndMoveEffect ; oops
 	xor a
 	ret
+.check_parental_bond
+	call HasOpponentFainted
+	ret z
+
+	call GetTrueUserAbility
+	cp PARENTAL_BOND
+	ret nz
+
+	; Multi-hit attacks have their own multihit code
+	ld a, BATTLE_VARS_MOVE_EFFECT
+	call GetBattleVar
+	cp EFFECT_MULTI_HIT
+	ret z
+
+	ld a, BATTLE_VARS_SUBSTATUS2
+	call GetBattleVarAddr
+	bit SUBSTATUS_IN_ABILITY, [hl]
+	res SUBSTATUS_IN_ABILITY, [hl]
+	ret nz
+	set SUBSTATUS_IN_ABILITY, [hl]
+	ld b, checkhit_command
+	jp SkipToBattleCommandBackwards
 
 CheckEndMoveEffects:
 ; Effects handled at move end skipped by Sheer Force negation except for rampage
@@ -3287,7 +3352,6 @@ UnevolvedEviolite:
 	ret
 
 BattleCommand_damagestats:
-AttackDamage:
 ; Return move power d, player level e, enemy defense c and player attack b.
 
 	call ResetDamage
@@ -4797,7 +4861,7 @@ BattleCommand_forceraisestat:
 	ld b, -1
 ForceRaiseStat:
 	xor a
-_ForceRaiseStat:
+_ForceRaiseStat: ; no-optimize stub jump
 	jr ChangeStat
 
 BattleCommand_forcelowerstat:
@@ -6183,28 +6247,13 @@ GetFutureSightUser::
 	ret
 
 _GetTrueUserAbility::
-; Returns current user's ability, or external future sight user ability.
-; Returns 0 (no ability) if opponent has Neutralizing Gas and user doesn't,
+; Returns current user's ability, or 0 (no ability) for external future sight user
+; Also returns 0 (no ability) if opponent has Neutralizing Gas and user doesn't
 	call GetFutureSightUser
 	jr nz, .external
 
 	ld a, BATTLE_VARS_ABILITY
 	call GetBattleVar
-	jr .got_ability
-
-.external
-	push bc
-	push hl
-	ld a, MON_SPECIES
-	call TrueUserPartyAttr
-	ld c, a
-	ld a, MON_PERSONALITY
-	call TrueUserPartyAttr
-	call GetAbility
-	ld a, b
-	pop hl
-	pop bc
-.got_ability
 	push bc
 	ld b, a
 	call GetOpponentAbility
@@ -6214,7 +6263,8 @@ _GetTrueUserAbility::
 	ld a, b
 	pop bc
 	ret nz
-	xor a
+.external
+	xor a ; ld a, NO_ABILITY
 	ret
 .same_ability
 	pop bc

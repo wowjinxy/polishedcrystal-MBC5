@@ -15,7 +15,8 @@ _StatsScreenDPad:
 	and D_DOWN
 	jr nz, BillsPC_PressDown
 .empty
-	jp BillsPC_JoypadDidNothing
+	xor a
+	ret
 
 BillsPC_PressUp:
 	ld hl, wBillsPC_CursorPosition
@@ -56,7 +57,6 @@ BillsPC_PressDown:
 
 BillsPC_JoypadDidNothing:
 	xor a
-	and a
 	ret
 
 BillsPC_UpDownDidSomething:

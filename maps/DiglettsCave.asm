@@ -46,7 +46,7 @@ DiglettsCaveFossilManiacScript:
 	playsound SFX_TRANSACTION
 	special Give_hMoneyTemp
 	special PlaceMoneyTopRight
-	thisopenedtext
+	jumpthisopenedtext
 
 	text "Hey, thanks!"
 
@@ -80,7 +80,7 @@ DiglettsCaveFossilManiacScript:
 	line "check that out."
 
 	para "I'll give you"
-	line "¥@"
+	line "¥"
 	deciram hMoneyTemp, 3, 7
 	text " for it."
 	cont "Whaddaya say?"

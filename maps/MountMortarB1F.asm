@@ -39,7 +39,7 @@ MountMortarB1FTutorDefenseCurlScript:
 	yesorno
 	iffalse .TutorRefused
 	writebyte DEFENSE_CURL
-	writetext Text_MountMortarB1FTutorClear
+	writetext ClearText
 	special Special_MoveTutor
 	ifequal $0, .TeachMove
 .TutorRefused
@@ -78,7 +78,7 @@ UnknownScript_0x7e217:
 	writebyte PREMIER_BALL
 	special SetLastPartyMonBall
 	setevent EVENT_GOT_TYROGUE_FROM_KIYO
-	thisopenedtext
+	jumpthisopenedtext
 
 UnknownText_0x7e36a:
 	text "Tyrogue is a"
@@ -136,10 +136,6 @@ Text_MountMortarB1FTutorQuestion:
 Text_MountMortarB1FTutorRefused:
 	text "I'll be right here"
 	line "waiting."
-	done
-
-Text_MountMortarB1FTutorClear:
-	text ""
 	done
 
 Text_MountMortarB1FTutorTaught:

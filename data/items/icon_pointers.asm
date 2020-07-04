@@ -243,7 +243,7 @@ ItemIconPointers:
 	dba OldAmberIcon
 	dba MulchIcon
 	dba SweetHoneyIcon
-	dba MintIcon
+	dba MintLeafIcon
 	dba FlowerMailIcon
 	dba SurfMailIcon
 	dba LiteBlueMailIcon
@@ -285,3 +285,4 @@ KeyItemIconPointers:
 	dba CatchCharmIcon
 	dba SilphScope2Icon
 	dba ApricornBoxIcon
+	dba TypeChartIcon

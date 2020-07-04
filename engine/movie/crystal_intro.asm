@@ -118,7 +118,7 @@ PlaceGameFreakPresents:
 	call StandardStackJumpTable
 
 .Jumptable
-	dw PlaceGameFreakPresents_0
+	dw DoNothing
 	dw PlaceGameFreakPresents_1
 	dw PlaceGameFreakPresents_2
 	dw PlaceGameFreakPresents_3
@@ -126,7 +126,6 @@ PlaceGameFreakPresents:
 PlaceGameFreakPresents_AdvanceIndex:
 	ld hl, wJumptableIndex
 	inc [hl]
-PlaceGameFreakPresents_0:
 	ret
 
 PlaceGameFreakPresents_1:
@@ -198,13 +197,12 @@ GameFreakLogoScenes:
 	dw GameFreakLogoScene2
 	dw GameFreakLogoScene3
 	dw GameFreakLogoScene4
-	dw GameFreakLogoScene5
+	dw DoNothing
 
 GameFreakLogoScene1:
 	ld hl, SPRITEANIMSTRUCT_JUMPTABLE_INDEX
 	add hl, bc
 	inc [hl]
-GameFreakLogoScene5:
 	ret
 
 GameFreakLogoScene2:
@@ -1179,7 +1177,6 @@ IntroScene20:
 	srl a
 	srl a
 	ld [wcf65], a
-	xor a
 	jp Intro_Scene20_AppearUnown
 
 IntroScene21:
@@ -1644,59 +1641,44 @@ endc
 
 Intro_Scene20_AppearUnown:
 ; Spawn the palette for the nth Unown
-	and a
-	jr nz, .load_pal_2
-
-	ld hl, .pal1
-	jr .got_pointer
-
-.load_pal_2
-	ld hl, .pal2
-
-.got_pointer
 	ld a, [wcf65]
 	and $7
 	add a
 	add a
 	add a
 	ld c, a
+	ld b, 0
+
 	ldh a, [rSVBK]
 	push af
 	ld a, $5
 	ldh [rSVBK], a
 
 	push bc
-	ld de, wBGPals2
-
-	ld a, c
-	add e
-	ld e, a
-	adc d
-	sub e
-	ld d, a
-
-	ld bc, 8
-	rst CopyBytes
+	ld hl, wBGPals2
+	call .copypal
 	pop bc
 
-	ld de, wBGPals1
-	ld a, c
-	add e
-	ld e, a
-	adc d
-	sub e
-	ld d, a
-
-	ld bc, 8
-	rst CopyBytes
+	ld hl, wBGPals1
+	call .copypal
 
 	pop af
 	ldh [rSVBK], a
+
 	ld a, $1
 	ldh [hCGBPalUpdate], a
 	ret
 
-.pal1
+.copypal:
+	add hl, bc
+	ld d, h
+	ld e, l
+	ld hl, .pal
+	ld c, 8 ; b is already 0
+	rst CopyBytes
+	ret
+
+.pal
 if !DEF(MONOCHROME)
 	RGB 24, 12, 09
 	RGB 31, 31, 31
@@ -1707,19 +1689,6 @@ else
 	RGB_MONOCHROME_WHITE
 	RGB_MONOCHROME_DARK
 	RGB_MONOCHROME_BLACK
-endc
-
-.pal2
-if !DEF(MONOCHROME)
-	RGB 24, 12, 09
-	RGB 31, 31, 31
-	RGB 31, 31, 31
-	RGB 31, 31, 31
-else
-	RGB_MONOCHROME_LIGHT
-	RGB_MONOCHROME_WHITE
-	RGB_MONOCHROME_WHITE
-	RGB_MONOCHROME_WHITE
 endc
 
 Intro_FadeUnownWordPals:

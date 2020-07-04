@@ -64,7 +64,7 @@ HDMATransferToWRAMBank3:
 	; fallthrough
 
 WaitDMATransfer:
-	jr .handleLoop
+	jr .handleLoop ; no-optimize stub jump
 .loop
 	call DelayFrame
 .handleLoop
@@ -258,8 +258,9 @@ HDMATransfer_OnlyTopFourRows:
 	inc de
 	dec c
 	jr nz, .inner_loop
-	ld a, l
-	add $20 - SCREEN_WIDTH
+	ld a, $20 - SCREEN_WIDTH
+	; hl += a
+	add l
 	ld l, a
 	adc h
 	sub l

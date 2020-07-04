@@ -158,7 +158,6 @@ AI_Types:
 ; Encourage super effective moves.
 ; Discourage not very effective moves unless
 ; all damaging moves are of the same type.
-
 	ld hl, wStringBuffer5 - 1
 	ld de, wEnemyMonMoves
 	ld b, NUM_MOVES + 1
@@ -187,6 +186,12 @@ AI_Types:
 	ld a, [wd265]
 	and a
 	jr z, .immune
+
+	ld a, [wEnemyMoveStruct + MOVE_EFFECT]
+	call AI_IsFixedDamageMove
+	jr c, .checkmove
+
+	ld a, [wd265]
 	cp $10 ; 1.0
 	jr z, .checkmove
 	jr c, .noteffective
@@ -238,6 +243,24 @@ AI_Types:
 .immune
 	call AIDiscourageMove
 	jr .checkmove
+
+AI_IsFixedDamageMove:
+; Returns c if move effect a does fixed damage (or is Counter/Mirror Coat)
+	push hl
+	push de
+	push bc
+	ld de, 1
+	ld hl, .FixedDamageMoves
+	call IsInArray
+	jp PopBCDEHL
+
+.FixedDamageMoves:
+	db EFFECT_COUNTER
+	db EFFECT_MIRROR_COAT
+	db EFFECT_STATIC_DAMAGE
+	db EFFECT_LEVEL_DAMAGE
+	db EFFECT_SUPER_FANG
+	db -1
 
 AI_Offensive:
 ; Greatly discourage non-damaging moves.
@@ -326,7 +349,6 @@ AI_Smart:
 	dbw EFFECT_HEAL,              AI_Smart_Heal
 	dbw EFFECT_TOXIC,             AI_Smart_Toxic
 	dbw EFFECT_LIGHT_SCREEN,      AI_Smart_LightScreen
-	dbw EFFECT_SUPER_FANG,        AI_Smart_SuperFang
 	dbw EFFECT_TRAP,              AI_Smart_Bind
 	dbw EFFECT_CONFUSE,           AI_Smart_Confuse
 	dbw EFFECT_SP_DEF_UP_2,       AI_Smart_SpDefenseUp2
@@ -343,14 +365,11 @@ AI_Smart:
 	dbw EFFECT_PAIN_SPLIT,        AI_Smart_PainSplit
 	dbw EFFECT_SLEEP_TALK,        AI_Smart_SleepTalk
 	dbw EFFECT_DESTINY_BOND,      AI_Smart_DestinyBond
-	dbw EFFECT_REVERSAL,          AI_Smart_Reversal
 	dbw EFFECT_HEAL_BELL,         AI_Smart_HealBell
 	dbw EFFECT_PRIORITY_HIT,      AI_Smart_PriorityHit
-	dbw EFFECT_THIEF,             AI_Smart_Thief
 	dbw EFFECT_MEAN_LOOK,         AI_Smart_MeanLook
-	dbw EFFECT_FLAME_WHEEL,       AI_Smart_FlameWheel
-	dbw EFFECT_FLARE_BLITZ,       AI_Smart_FlameWheel
-	dbw EFFECT_SACRED_FIRE,       AI_Smart_FlameWheel
+	dbw EFFECT_FLARE_BLITZ,       AI_Smart_Defrost
+	dbw EFFECT_SACRED_FIRE,       AI_Smart_Defrost
 	dbw EFFECT_CURSE,             AI_Smart_Curse
 	dbw EFFECT_PROTECT,           AI_Smart_Protect
 	dbw EFFECT_FORESIGHT,         AI_Smart_Foresight
@@ -366,7 +385,6 @@ AI_Smart:
 	dbw EFFECT_PURSUIT,           AI_Smart_Pursuit
 	dbw EFFECT_RAPID_SPIN,        AI_Smart_RapidSpin
 	dbw EFFECT_HEALING_LIGHT,     AI_Smart_HealingLight
-	dbw EFFECT_HIDDEN_POWER,      AI_Smart_HiddenPower
 	dbw EFFECT_RAIN_DANCE,        AI_Smart_RainDance
 	dbw EFFECT_SUNNY_DAY,         AI_Smart_SunnyDay
 	dbw EFFECT_BELLY_DRUM,        AI_Smart_BellyDrum
@@ -945,14 +963,6 @@ AI_Smart_TrickRoom:
 	dec [hl]
 	ret
 
-AI_Smart_SuperFang:
-; Discourage this move if player's HP is below 25%.
-
-	call AICheckPlayerQuarterHP
-	ret c
-	inc [hl]
-	ret
-
 AI_Smart_Paralyze:
 
 ; 50% chance to discourage this move if player's HP is below 25%.
@@ -1175,7 +1185,6 @@ AI_Smart_Encore:
 	db CONVERSION
 	db DISABLE
 	db DREAM_EATER
-	db FLAME_WHEEL
 	db FOCUS_ENERGY
 	db GROWTH
 	db HAZE
@@ -1236,7 +1245,6 @@ AI_Smart_SleepTalk:
 	ret
 
 AI_Smart_DestinyBond:
-AI_Smart_Reversal:
 ; Discourage this move if enemy's HP is above 25%.
 
 	call AICheckEnemyQuarterHP
@@ -1313,7 +1321,7 @@ AI_Smart_PriorityHit:
 	ld a, $1
 	ldh [hBattleTurn], a
 	push hl
-	farcall AttackDamage
+	farcall BattleCommand_damagestats
 	farcall BattleCommand_damagecalc
 	farcall BattleCommand_stab
 	pop hl
@@ -1329,14 +1337,6 @@ AI_Smart_PriorityHit:
 	dec [hl]
 	dec [hl]
 	dec [hl]
-	ret
-
-AI_Smart_Thief:
-; Don't use Thief unless it's the only move available.
-
-	ld a, [hl]
-	add $1e
-	ld [hl], a
 	ret
 
 AI_Smart_Disable:
@@ -1438,7 +1438,7 @@ AICheckLastPlayerMon:
 
 	ret
 
-AI_Smart_FlameWheel:
+AI_Smart_Defrost:
 ; Use this move if the enemy is frozen.
 
 	ld a, [wEnemyMonStatus]
@@ -1892,44 +1892,6 @@ AI_Smart_RapidSpin:
 	dec [hl]
 	ret
 
-AI_Smart_HiddenPower:
-	push hl
-	ld a, 1
-	ldh [hBattleTurn], a
-
-; Calculate Hidden Power's type and base power based on enemy's DVs.
-	farcall HiddenPowerDamageStats
-	farcall BattleCheckTypeMatchup
-	pop hl
-
-; Discourage Hidden Power if not very effective.
-	ld a, [wd265]
-	cp 10
-	jr c, .bad
-
-; Discourage Hidden Power if its base power	is lower than 50.
-	ld a, d
-	cp 50
-	jr c, .bad
-
-; Encourage Hidden Power if super effective.
-	ld a, [wd265]
-	cp 11
-	jr nc, .good
-
-; Encourage Hidden Power if its base power is 70.
-	ld a, d
-	cp 70
-	ret c
-
-.good
-	dec [hl]
-	ret
-
-.bad
-	inc [hl]
-	ret
-
 AI_Smart_RainDance:
 
 ; Greatly discourage this move if it would favour the player type-wise.
@@ -1999,9 +1961,7 @@ AI_Smart_WeatherMove:
 	call AICheckPlayerHalfHP
 	jr nc, AIBadWeatherType
 
-; 50% chance to encourage this move otherwise.
-	call AI_50_50
-	ret c
+; Encourage the move otherwise
 
 	dec [hl]
 	ret
@@ -2632,21 +2592,48 @@ AIDamageCalc:
 	ld a, 1
 	ldh [hBattleTurn], a
 	ld a, [wEnemyMoveStruct + MOVE_EFFECT]
+	cp EFFECT_GYRO_BALL
+	jr z, .gyro_ball
+	cp EFFECT_HIDDEN_POWER
+	jr z, .hidden_power
+	cp EFFECT_LOW_KICK
+	jr z, .low_kick
+	cp EFFECT_RETURN
+	jr z, .return
+	cp EFFECT_REVERSAL
+	jr z, .reversal
 	ld de, 1
 	ld hl, .ConstantDamageEffects
 	call IsInArray
 	jr nc, .no_special_damage
 	farjp BattleCommand_constantdamage
 
+.gyro_ball
+	farcall BattleCommand_damagestats
+	farcall BattleCommand_gyroball
+	jr .damagecalc
+.hidden_power
+	farcall HiddenPowerDamageStats
+	jr .damagecalc
+.low_kick
+	farcall BattleCommand_damagestats
+	farcall BattleCommand_lowkick
+	jr .damagecalc
+.return ; the move
+	farcall BattleCommand_damagestats
+	farcall BattleCommand_happinesspower
+	jr .damagecalc
+.reversal
+	farcall BattleCommand_constantdamage
+	jr .stab
 .no_special_damage
-	farcall AttackDamage
+	farcall BattleCommand_damagestats
+.damagecalc
 	farcall BattleCommand_damagecalc
+.stab
 	farcall BattleCommand_stab
 
-	; Maybe run conditional boost if applicable
-	ld a, [wEnemyMoveStruct + MOVE_EFFECT]
-	cp EFFECT_CONDITIONAL_BOOST
-	ret nz
+	; harmless even if move doesn't have a conditional boost
 	farjp BattleCommand_conditionalboost
 
 .ConstantDamageEffects:
@@ -2841,17 +2828,16 @@ AI_Status:
 .no_leaf_guard
 	; Check Substitute
 	farcall CheckSubstituteOpp
-	call nz, AIDiscourageMove
+	jr nz, .pop_and_discourage
 	pop hl
-	pop de
-	pop bc
-	jp .checkmove
+	jr .nextmove
 
 .pop_and_discourage
 	pop hl
+	call AIDiscourageMove
+.nextmove
 	pop de
 	pop bc
-	call AIDiscourageMove
 	jp .checkmove
 
 AI_Risky:

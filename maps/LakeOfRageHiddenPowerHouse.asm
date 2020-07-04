@@ -41,21 +41,20 @@ HiddenPowerGuy:
 	special Special_HiddenPowerGuru
 	iffalse_jumpopenedtext .Text4
 	ifequal $1, .Egg
-	thisopenedtext
+	jumpthisopenedtext
 
 	text "I can sense it…"
 
-	para "Your @"
+	para "Your "
 	text_from_ram wStringBuffer3
-	text ""
 	line "has a Hidden Power"
-	cont "of @"
+	cont "of "
 	text_from_ram wStringBuffer1
 	text "!"
 	done
 
 .Egg:
-	thisopenedtext
+	jumpthisopenedtext
 
 	text "An Egg has not yet"
 	line "developed a Hidden"

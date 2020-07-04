@@ -33,7 +33,7 @@ GourmetManiacScript:
 	playsound SFX_TRANSACTION
 	special Give_hMoneyTemp
 	special PlaceMoneyTopRight
-	thisopenedtext
+	jumpthisopenedtext
 
 	text "Merci! Thank you!"
 
@@ -61,7 +61,7 @@ GourmetManiacScript:
 	line "good!"
 
 	para "Would you accept"
-	line "¥@"
+	line "¥"
 	deciram hMoneyTemp, 3, 7
 	text " for it?"
 	done

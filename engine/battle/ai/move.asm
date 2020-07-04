@@ -1,12 +1,53 @@
 AIChooseMove:
-; Score each move in wEnemyMonMoves starting from wBuffer1. Lower is better.
-; Pick the move with the lowest score.
-
+; Wrapper around AI move choosing. Let the AI switch out if its desired move
+; differs from one it is locked into with Choice or Encore.
 	; Linking is handled elsewhere
 	ld a, [wLinkMode]
 	and a
 	ret nz
 
+	ld a, [wEnemyEncoreCount]
+	push af
+	xor a
+	ld [wEnemyEncoreCount], a
+
+	; First, check if the AI has any usable moves. This prevents switches
+	; caused by the AI running out of usable moves alltogether.
+	call SetEnemyTurn
+	farcall CheckUsableMoves
+	jr z, .not_struggling
+
+	; Just bypass the checks alltogether
+	pop af
+	ret
+
+.not_struggling
+	call _AIChooseMove
+	pop af
+	ld [wEnemyEncoreCount], a
+
+	; Check if the chosen move is usable after restoring Choice/Encore
+	ld a, [wCurEnemyMoveNum]
+	farcall CheckUsableMove
+	ret z
+
+	; Move is unusable. Fix the move selection to a valid move, but prefer
+	; to switch if we can.
+	call _AIChooseMove
+
+	; See if we have a good switch target.
+	ld a, [wEnemyPerishCount]
+	push af
+	ld a, 1
+	ld [wEnemyPerishCount], a
+	farcall AI_MaybeSwitch
+	pop af
+	ld [wEnemyPerishCount], a
+	ret
+
+_AIChooseMove:
+; Score each move in wEnemyMonMoves starting from wBuffer1. Lower is better.
+; Pick the move with the lowest score.
 	; Default score is 20, unusable moves are set to 80.
 	call SetEnemyTurn
 	ld hl, wStringBuffer5 + 3
@@ -30,7 +71,7 @@ AIChooseMove:
 	; Wildmons choose moves at random
 	ld a, [wBattleMode]
 	dec a
-	jr z, .DecrementScores
+	jp z, .DecrementScores
 
 ; Apply AI scoring layers depending on the trainer class.
 .ApplyLayers:
@@ -48,7 +89,25 @@ AIChooseMove:
 	rst AddNTimes
 
 .battle_tower_skip
+	ld de, wStringBuffer5 + 4
+	ld bc, 2
+	ld a, BANK(TrainerClassAttributes)
+	call FarCopyBytes
+
+	; Add badge flags
+	call .AddBadgeFlags
+
+	; Aggressive overrides type matchups
+	ld hl, wStringBuffer5 + 4
+	lb bc, CHECK_FLAG, AI_AGGRESSIVE_F
+	predef FlagPredef
+	jr z, .not_aggressive
+	lb bc, RESET_FLAG, AI_TYPES_F
+	predef FlagPredef
+
+.not_aggressive
 	lb bc, CHECK_FLAG, 0
+	ld hl, wStringBuffer5 + 4
 	push bc
 	push hl
 
@@ -58,18 +117,12 @@ AIChooseMove:
 
 	ld a, c
 	cp 16 ; up to 16 scoring layers
+if DEF(DEBUG)
+	jr z, .DebugAndDecrement
+endc
 	jr z, .DecrementScores
 
-	call .BadgeAICheck
-	jr nc, .check_flags
-	inc c
 	push bc
-	push hl
-	jr .apply_layer
-
-.check_flags
-	push bc
-	ld d, BANK(TrainerClassAttributes)
 	predef FlagPredef
 	ld d, c
 	pop bc
@@ -78,15 +131,15 @@ AIChooseMove:
 	push bc
 	push hl
 
-if DEF(DEBUG)
-	call AIDebug
-endc
-
 	ld a, d
 	and a
 	jr z, .CheckLayer
 
 .apply_layer
+if DEF(DEBUG)
+	call AIDebug
+endc
+
 	ld hl, AIScoringPointers
 	dec c
 	ld b, 0
@@ -100,45 +153,44 @@ endc
 
 	jr .CheckLayer
 
-.BadgeAICheck:
-	push hl
-	push de
-	ld hl, .BadgeAILayers
-	push bc
-	ld de, 2
-	call IsInArray
-	jr nc, .done
-	push hl
+.AddBadgeFlags:
 	ld hl, wBadges
 	ld b, wBadgesEnd - wBadges
 	call CountSetBits
+.badge_loop
+	ld c, [hl]
+	cp c
+	ret c
+	inc hl
+	push hl
+	push af
+	ld c, [hl]
+	ld hl, wStringBuffer5 + 4
+	ld b, SET_FLAG
+	predef FlagPredef
+	pop af
 	pop hl
 	inc hl
-	ld c, [hl]
-
-	; If our total badges (in a) exceed badge threshold (in c), return c.
-	cp c
-	ccf
-.done
-	pop bc
-	pop de
-	pop hl
-	ret
+	jr .badge_loop
 
 .BadgeAILayers:
 	; Don't do redundant things (such as paralyzing a paralyzed foe, etc)
-	db AI_BASIC_F, 0
+	db 0, AI_BASIC_F
 	; Learn about type advantage
-	db AI_TYPES_F, 2
+	db 2, AI_TYPES_F
 	; Learn about ineffective status moves (Hypnosis vs Insomnia, etc)
-	db AI_STATUS_F, 4
+	db 4, AI_STATUS_F
 	; Maximize damage potential
-	db AI_AGGRESSIVE_F, 8
+	db 8, AI_AGGRESSIVE_F
 	; "Smart" AI
-	db AI_SMART_F, 16
+	db 16, AI_SMART_F
 	db -1
 
 ; Decrement the scores of all moves one by one until one reaches 0.
+if DEF(DEBUG)
+.DebugAndDecrement:
+	call AIDebug
+endc
 .DecrementScores:
 	ld hl, wStringBuffer5
 	ld de, wEnemyMonMoves

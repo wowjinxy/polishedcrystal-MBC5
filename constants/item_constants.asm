@@ -277,7 +277,7 @@
 
 	const MULCH        ; f2
 	const SWEET_HONEY  ; f3
-	const MINT         ; f4
+	const MINT_LEAF    ; f4
 
 	const FLOWER_MAIL  ; f5
 	const SURF_MAIL    ; f6
@@ -435,7 +435,7 @@ endc
 	const NAM_METAL_COAT
 	const NAM_METAL_POWDER
 	const NAM_METRONOME_I
-	const NAM_MINT
+	const NAM_MINT_LEAF
 	const NAM_MIRACLE_SEED
 	const NAM_MIRAGE_MAIL
 	const NAM_MOOMOO_MILK
@@ -599,4 +599,5 @@ NUM_APRICORNS EQU const_value - 1
 	const CATCH_CHARM  ; 1a
 	const SILPHSCOPE2  ; 1b
 	const APRICORN_BOX ; 1c
+	const TYPE_CHART   ; 1d
 NUM_KEY_ITEMS EQU const_value

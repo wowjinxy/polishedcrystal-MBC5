@@ -242,7 +242,7 @@ ItemDescriptions:
 	dw OldAmberDesc
 	dw MulchDesc
 	dw SweetHoneyDesc
-	dw MintDesc
+	dw MintLeafDesc
 	dw FlowerMailDesc
 	dw SurfMailDesc
 	dw LiteBlueMailDesc
@@ -284,6 +284,7 @@ KeyItemDescriptions:
 	dw CatchCharmDesc
 	dw SilphScope2Desc
 	dw ApricornBoxDesc
+	dw TypeChartDesc
 
 PokeBallDesc:
 	db   "An item for catch-"
@@ -646,7 +647,7 @@ SitrusBerryDesc:
 
 FigyBerryDesc:
 	db   "Self-restore item."
-	next "(1/2 max HP, Hold)@"
+	next "(1/3 max HP, Hold)@"
 
 PomegBerryDesc:
 	db   "Raises friendship"
@@ -1255,7 +1256,7 @@ UtilUmbrellaDesc:
 	db   "Protects from"
 	next "weather effects.@"
 
-MintDesc:
+MintLeafDesc:
 	db   "A fragrant sprig"
 	next "of mint.@"
 
@@ -1370,3 +1371,7 @@ SilphScope2Desc:
 ApricornBoxDesc:
 	db   "Holds up to 99 of"
 	next "each Apricorn.@"
+
+TypeChartDesc:
+	db   "Summarizes all"
+	next "type advantages.@"

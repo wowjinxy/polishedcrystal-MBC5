@@ -103,6 +103,8 @@ JudgeSystem::
 	call ClearBGPalettes
 	call ClearTileMap
 	call DisableLCD
+	xor a
+	ldh [hBGMapMode], a
 
 ; Load the party struct into wTempMon
 	ld hl, wPartyMons
@@ -261,12 +263,8 @@ JudgeSystem::
 
 ; Show the screen
 	call EnableLCD
-	call ApplyTilemapInVBlank
-	xor a
-	ldh [hBGMapMode], a
 	ld a, CGB_JUDGE_SYSTEM
 	call GetCGBLayout
-	call SetPalettes
 
 .render
 	call ClearSpriteAnims
@@ -396,18 +394,16 @@ JudgeSystem::
 	push bc
 	push de
 ; Load the palettes
-	ld de, wBGPals2
+	ld de, wBGPals1
 	ld bc, 6 palettes
 	call FarCopyColorWRAM
-	ld a, $1
-	ldh [hCGBPalUpdate], a
 ; Place the title
 	pop de
-	ldh [hBGMapMode], a
 	hlcoord 1, 2
 	rst PlaceString
-; Render the chart
-	ret
+; Render the chart when this returns (bc is on the stack)
+	ld b, 2
+	jp SafeCopyTilemapAtOnce
 
 SparkleMaxStat:
 ; Show a sparkle sprite at (d, e) if a is 255

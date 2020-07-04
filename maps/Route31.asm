@@ -76,7 +76,7 @@ TrainerCooltrainermFinch:
 	verbosegiveitem AIR_BALLOON
 	iffalse_endtext
 	setevent EVENT_GOT_AIR_BALLOON_FROM_ROUTE_31_LEADER
-	thisopenedtext
+	jumpthisopenedtext
 
 .AfterText2:
 	text "You saw the effect"
@@ -319,7 +319,7 @@ Route31MailRecipientScript:
 	yesorno
 	iffalse .TutorRefused
 	writebyte SLEEP_TALK
-	writetext Text_Route31TutorClear
+	writetext ClearText
 	special Special_MoveTutor
 	ifequal $0, .TeachMove
 .TutorRefused
@@ -444,10 +444,6 @@ Text_Route31TutorQuestion:
 
 Text_Route31TutorRefused:
 	text "OK then…"
-	done
-
-Text_Route31TutorClear:
-	text ""
 	done
 
 Text_Route31TutorTaught:

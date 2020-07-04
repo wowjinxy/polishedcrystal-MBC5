@@ -1,5 +1,9 @@
 AI_MaybeSwitch:
+	; This function can be called twice in case of choice-locking. If so,
+	; dismiss the second run of the function if the first gave a target.
+	ld a, [wEnemySwitchTarget]
 	and a
+	ret nz
 
 	ld a, [wBattleMode]
 	dec a
@@ -164,6 +168,10 @@ SwitchSometimes:
 AI_TryItem:
 	; items are not allowed in the BattleTower
 	ld a, [wInBattleTowerBattle]
+	and a
+	ret nz
+
+	ld a, [wLinkMode]
 	and a
 	ret nz
 

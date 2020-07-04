@@ -1348,7 +1348,7 @@ wPokeAnimSceneIndex:: db
 wPokeAnimPointer:: dw
 wPokeAnimSpecies:: db
 wPokeAnimVariant:: db
-wPokeAnimSpeciesOrVariant:: db
+	ds 1
 wPokeAnimGraphicStartTile:: db
 wPokeAnimCoord:: dw
 wPokeAnimFrontpicHeight:: db
@@ -1516,7 +1516,7 @@ wLYOverridesBackupEnd::
 SECTION "Scratch RAM", WRAMX
 
 UNION
-wDecompressScratch:: ds $80 tiles
+wDecompressScratch:: ds $100 tiles
 NEXTU
 wScratchTileMap:: ds BG_MAP_WIDTH * BG_MAP_HEIGHT
 wScratchAttrMap:: ds BG_MAP_WIDTH * BG_MAP_HEIGHT

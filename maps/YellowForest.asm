@@ -77,13 +77,13 @@ YellowForest_UnderfootBridgeAsm:
 
 YellowForestBridgeOverheadTrigger:
 	callasm YellowForest_OverheadBridgeAsm
-	thisasm
+	callthisasm
 	xor a
 	jr YellowForest_FinishBridge
 
 YellowForestBridgeUnderfootTrigger:
 	callasm YellowForest_UnderfootBridgeAsm
-	thisasm
+	callthisasm
 	ld a, $1
 YellowForest_FinishBridge:
 	ld [wWalkingOnBridge], a
@@ -225,7 +225,7 @@ YellowForestTutorSeedBombScript:
 	yesorno
 	iffalse .TutorRefused
 	writebyte SEED_BOMB
-	writetext Text_YellowForestTutorClear
+	writetext ClearText
 	special Special_MoveTutor
 	ifequal $0, .TeachMove
 .TutorRefused
@@ -470,10 +470,6 @@ Text_YellowForestTutorQuestion:
 Text_YellowForestTutorRefused:
 	text "Talk to me if you"
 	line "change your mind!"
-	done
-
-Text_YellowForestTutorClear:
-	text ""
 	done
 
 Text_YellowForestTutorTaught:

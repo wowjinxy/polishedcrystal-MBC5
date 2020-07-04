@@ -10,24 +10,22 @@ LinkBattleErrorText::
 
 BattleText_PlayerPickedUpPayDayMoney:
 	text "<PLAYER> picked up"
-	line "¥@"
+	line "¥"
 	deciram wPayDayMoney, 3, 6
 	text "!"
 	prompt
 
 WildPokemonAppearedText:
-	text "A wild @"
+	text "A wild "
 LegendaryAppearedText:
 	text_from_ram wEnemyMonNick
-	text ""
 	line "appeared!"
 	prompt
 
 HookedPokemonAttackedText:
 	text "The hooked"
-	line "@"
+	line ""
 	text_from_ram wEnemyMonNick
-	text ""
 	cont "attacked!"
 	prompt
 
@@ -48,17 +46,15 @@ WantToBattleText::
 	prompt
 
 BattleText_WildFled:
-	text "Wild @"
+	text "Wild "
 BattleText_LegendaryFled:
 	text_from_ram wEnemyMonNick
-	text ""
 	line "fled!"
 	prompt
 
 BattleText_EnemyFled:
-	text "The foe @"
+	text "The foe "
 	text_from_ram wEnemyMonNick
-	text ""
 	line "fled!"
 	prompt
 
@@ -101,7 +97,7 @@ HailHitsText:
 
 PerishCountText:
 	text "<USER>'s"
-	line "Perish count is @"
+	line "Perish count is "
 	deciram wd265, 1, 1
 	text "!"
 	prompt
@@ -115,7 +111,7 @@ BattleText_UserLostSomeOfItsHP:
 BattleText_PickedUpItem:
 	; assumes player (enemy might overflow text-wise)
 	text "<USER> picked"
-	line "up @"
+	line "up "
 	text_from_ram wStringBuffer2
 	text "."
 	prompt
@@ -123,14 +119,14 @@ BattleText_PickedUpItem:
 BattleText_UserRecoveredWithItem:
 	text "<USER>"
 	line "recovered with"
-	cont "@"
+	cont ""
 	text_from_ram wStringBuffer1
 	text "."
 	prompt
 
 BattleText_UserAteItem:
 	text "<USER>"
-	line "ate @"
+	line "ate "
 	text_from_ram wStringBuffer1
 	text "!"
 	prompt
@@ -138,14 +134,14 @@ BattleText_UserAteItem:
 BattleText_UserHurtByItem:
 	text "<USER>"
 	line "was hurt by"
-	cont "@"
+	cont ""
 	text_from_ram wStringBuffer1
 	text "."
 	prompt
 
 BattleText_UserItemLetItMoveFirst::
 	text "<USER>'s"
-	line "@"
+	line ""
 	text_from_ram wStringBuffer1
 	text " let it"
 	cont "move first."
@@ -154,10 +150,10 @@ BattleText_UserItemLetItMoveFirst::
 BattleText_UserRecoveredPPUsing:
 	text "<USER>"
 	line "restored PP of"
-	cont "@"
+	cont ""
 	text_from_ram wStringBuffer2
 	text " using"
-	cont "@"
+	cont ""
 	text_from_ram wStringBuffer1
 	text "!"
 	prompt
@@ -175,83 +171,76 @@ BrokeReflectText:
 	prompt
 
 BattleText_ItemLowered:
-	text "The @"
+	text "The "
 	text_from_ram wStringBuffer1
-	text ""
 	line "lowered"
 	cont "<USER>'s"
-	cont "@"
+	cont ""
 	text_from_ram wStringBuffer2
 	text "!"
 	prompt
 
 BattleText_ItemHarshlyLowered:
-	text "The @"
+	text "The "
 	text_from_ram wStringBuffer1
-	text ""
 	line "sharply lowered"
 	cont "<USER>'s"
-	cont "@"
+	cont ""
 	text_from_ram wStringBuffer2
 	text "!"
 	prompt
 
 BattleText_ItemSeverelyLowered:
-	text "The @"
+	text "The "
 	text_from_ram wStringBuffer1
-	text ""
 	line "severely lowered"
 	cont "<USER>'s"
-	cont "@"
+	cont ""
 	text_from_ram wStringBuffer2
 	text "!"
 	prompt
 
 BattleText_ItemRaised:
-	text "The @"
+	text "The "
 	text_from_ram wStringBuffer1
-	text ""
 	line "raised"
 	cont "<USER>'s"
-	cont "@"
+	cont ""
 	text_from_ram wStringBuffer2
 	text "!"
 	prompt
 
 BattleText_ItemSharplyRaised:
-	text "The @"
+	text "The "
 	text_from_ram wStringBuffer1
-	text ""
 	line "sharply raised"
 	cont "<USER>'s"
-	cont "@"
+	cont ""
 	text_from_ram wStringBuffer2
 	text "!"
 	prompt
 
 BattleText_ItemDrasticallyRaised:
-	text "The @"
+	text "The "
 	text_from_ram wStringBuffer1
-	text ""
 	line "drastically raised"
 	cont "<USER>'s"
-	cont "@"
+	cont ""
 	text_from_ram wStringBuffer2
 	text "!"
 	prompt
 
 BattleText_ItemRaisedCrit:
 	text "<USER>"
-	line "used @"
+	line "used "
 	text_from_ram wStringBuffer1
-	text ""
 	cont "to get pumped!"
 	prompt
 
 BattleText_UserChargedWithItem:
 	text "<USER>"
 	line "became charged"
-	cont "using @"
+	cont "using "
 	text_from_ram wStringBuffer1
 	text "!"
 	prompt
@@ -314,16 +303,14 @@ BattleText_TheHailStopped:
 	prompt
 
 BattleText_EnemyPkmnFainted:
-	text "The foe @"
+	text "The foe "
 	text_from_ram wEnemyMonNick
-	text ""
 	line "fainted!"
 	prompt
 
 GotMoneyForWinningText:
-	text "<PLAYER> got ¥@"
+	text "<PLAYER> got ¥"
 	deciram wBattleReward, 3, 6
-	text ""
 	line "for winning!"
 	prompt
 
@@ -343,9 +330,8 @@ TiedAgainstText:
 	prompt
 
 SentSomeToMomText:
-	text "<PLAYER> got ¥@"
+	text "<PLAYER> got ¥"
 	deciram wBattleReward, 3, 6
-	text ""
 	line "for winning!"
 	cont "Sent some to Mom!"
 	prompt
@@ -360,7 +346,6 @@ SentAllToMomText:
 
 BattleText_PkmnFainted:
 	text_from_ram wBattleMonNick
-	text ""
 	line "fainted!"
 	prompt
 
@@ -376,7 +361,7 @@ LostAgainstText:
 BattleText_EnemyIsAboutToUseWillPlayerSwitchPkmn:
 	text "<ENEMY>"
 	line "is about to use"
-	cont "@"
+	cont ""
 	text_from_ram wEnemyMonNick
 	text "."
 
@@ -387,7 +372,7 @@ BattleText_EnemyIsAboutToUseWillPlayerSwitchPkmn:
 BattleText_EnemyAreAboutToUseWillPlayerSwitchPkmn:
 	text "<ENEMY>"
 	line "are about to use"
-	cont "@"
+	cont ""
 	text_from_ram wEnemyMonNick
 	text "."
 
@@ -416,7 +401,7 @@ BattleText_EnemyAreAboutToSwitchWillPlayerSwitchPkmn:
 BattleText_EnemySentOut:
 	text "<ENEMY>"
 	line "sent out"
-	cont "@"
+	cont ""
 	text_from_ram wEnemyMonNick
 	text "!"
 	done
@@ -447,7 +432,7 @@ BattleText_GotAwaySafely:
 BattleText_UserFledUsingAStringBuffer1:
 	text "<USER>"
 	line "fled using a"
-	cont "@"
+	cont ""
 	text_from_ram wStringBuffer1
 	text "!"
 	prompt
@@ -460,7 +445,7 @@ BattleText_UserHurtBySpikes:
 RecoveredUsingText:
 	text "<USER>"
 	line "recovered using a"
-	cont "@"
+	cont ""
 	text_from_ram wStringBuffer1
 	text "!"
 	prompt
@@ -473,9 +458,8 @@ AirBalloonPoppedText:
 
 BattleText_UsersStringBuffer1Activated:
 	text "<USER>'s"
-	line "@"
+	line ""
 	text_from_ram wStringBuffer1
-	text ""
 	cont "activated!"
 	prompt
 
@@ -486,22 +470,19 @@ BattleText_ItemsCantBeUsedHere:
 
 BattleText_PkmnIsAlreadyOut:
 	text_from_ram wBattleMonNick
-	text ""
 	line "is already out."
 	prompt
 
 BattleText_PkmnCantBeRecalled:
 	text_from_ram wBattleMonNick
-	text ""
 	line "can't be recalled!"
 	prompt
 
 BattleText_PkmnCantBeRecalledAbility:
 	text_from_ram wEnemyMonNick
 	text "'s"
-	line "@"
+	line ""
 	text_from_ram wStringBuffer1
-	text ""
 	cont "prevents escape!"
 	prompt
 
@@ -511,11 +492,10 @@ BattleText_TheresNoPPLeftForThisMove:
 	prompt
 
 BattleText_ItemOnlyAllowsMove: ; choice items
-	text "The @"
+	text "The "
 	text_from_ram wStringBuffer1
-	text ""
 	line "only allows use"
-	cont "of @"
+	cont "of "
 	text_from_ram wStringBuffer2
 	text "!"
 	prompt
@@ -523,15 +503,14 @@ BattleText_ItemOnlyAllowsMove: ; choice items
 BattleText_EncoreOnlyAllowsMove:
 	text "The encore"
 	line "only allows use"
-	cont "of @"
+	cont "of "
 	text_from_ram wStringBuffer1
 	text "!"
 	prompt
 
 BattleText_ItemPreventsStatusMoves: ; assault vest
-	text "The @"
+	text "The "
 	text_from_ram wStringBuffer1
-	text ""
 	line "prevents usage"
 	cont "of status moves!"
 	prompt
@@ -543,7 +522,6 @@ BattleText_TheMoveIsDisabled:
 
 BattleText_PkmnHasNoMovesLeft:
 	text_from_ram wBattleMonNick
-	text ""
 	line "has no moves left!"
 	done
 
@@ -555,23 +533,21 @@ BattleText_UserEncoreEnded:
 BattleText_StringBuffer1GrewToLevel:
 	text_from_ram wStringBuffer1
 	text " grew to"
-	line "level @"
+	line "level "
 	deciram wCurPartyLevel, 1, 3
-	text "!@"
+	text "!"
 	play_sound SFX_DEX_FANFARE_50_79
 	text_end
 
 BattleText_WildPkmnIsEating:
-	text "Wild @"
+	text "Wild "
 	text_from_ram wEnemyMonNick
-	text ""
 	line "is eating!"
 	prompt
 
 BattleText_WildPkmnIsAngry:
-	text "Wild @"
+	text "Wild "
 	text_from_ram wEnemyMonNick
-	text ""
 	line "is angry!"
 	prompt
 
@@ -642,7 +618,7 @@ BecameConfusedDueToFatigueText:
 	prompt
 
 BattleText_ItemHealedConfusion: ; ItemHealedConfusion
-	text "A @"
+	text "A "
 	text_from_ram wStringBuffer1
 	text " rid"
 	line "<USER>"
@@ -657,7 +633,7 @@ AlreadyConfusedText:
 BattleText_UsersHurtByStringBuffer1:
 	text "<USER> is"
 	line "hurt by"
-	cont "@"
+	cont ""
 	text_from_ram wStringBuffer1
 	text "!"
 	prompt
@@ -665,7 +641,7 @@ BattleText_UsersHurtByStringBuffer1:
 BattleText_UserWasReleasedFromStringBuffer1:
 	text "<USER>"
 	line "was released from"
-	cont "@"
+	cont ""
 	text_from_ram wStringBuffer1
 	text "!"
 	prompt
@@ -689,7 +665,7 @@ WrappedByText:
 HungOnText:
 	text "<TARGET>"
 	line "hung on with"
-	cont "@"
+	cont ""
 	text_from_ram wStringBuffer1
 	text "!"
 	prompt
@@ -713,28 +689,26 @@ InfatuationText:
 
 ObliviousPreventedDestinyKnot:
 	text "<USER>'s"
-	line "@"
+	line ""
 	text_from_ram wStringBuffer1
-	text ""
 	cont "prevents"
-	cont "@"
+	cont ""
 	text_from_ram wStringBuffer2
-	text ""
 	cont "infatuating it!"
 	prompt
 
 DestinyKnotInfatuatedUser:
 	text "<TARGET>'s"
-	line "@"
+	line ""
 	text_from_ram wStringBuffer1
-	text ""
 	cont "infatuated"
+
 	para "<USER>!"
 	prompt
 
 DisabledMoveText:
 	text "<USER>'s"
-	line "@"
+	line ""
 	text_from_ram wStringBuffer1
 	text " is"
 	cont "disabled!"
@@ -742,16 +716,15 @@ DisabledMoveText:
 
 UsedMoveText:
 	text "<USER>"
-	line "used @"
+	line "used "
 	text_from_ram wStringBuffer2
 	text "!"
 	done
 
 UsedMoveInsteadText:
 	text "<USER>"
-	line "used @"
+	line "used "
 	text_from_ram wStringBuffer2
-	text ""
 	cont "instead!"
 	done
 
@@ -799,7 +772,7 @@ NoPPLeftText:
 HasNoPPLeftText:
 	text "<USER>"
 	line "has no PP left for"
-	cont "@"
+	cont ""
 	text_from_ram wStringBuffer2
 	text "!"
 	prompt
@@ -904,7 +877,7 @@ InvalidTypeChangeText:
 SketchedText:
 	text "<USER>"
 	line "sketched"
-	cont "@"
+	cont ""
 	text_from_ram wStringBuffer1
 	text "!"
 	prompt
@@ -977,7 +950,7 @@ WasFrozenText:
 
 WontRiseAnymoreText:
 	text "<USER>'s"
-	line "@"
+	line ""
 	text_from_ram wStringBuffer2
 	text " won't go"
 	cont "any higher!"
@@ -985,7 +958,7 @@ WontRiseAnymoreText:
 
 WontDropAnymoreText:
 	text "<USER>'s"
-	line "@"
+	line ""
 	text_from_ram wStringBuffer2
 	text " won't go"
 	cont "any lower!"
@@ -993,14 +966,14 @@ WontDropAnymoreText:
 
 StatRoseText:
 	text "<USER>'s"
-	line "@"
+	line ""
 	text_from_ram wStringBuffer2
 	text " rose!"
 	prompt
 
 StatRoseSharplyText:
 	text "<USER>'s"
-	line "@"
+	line ""
 	text_from_ram wStringBuffer2
 	text " rose"
 	cont "sharply!"
@@ -1008,7 +981,7 @@ StatRoseSharplyText:
 
 StatRoseDrasticallyText:
 	text "<USER>'s"
-	line "@"
+	line ""
 	text_from_ram wStringBuffer2
 	text " rose"
 	cont "drastically!"
@@ -1016,14 +989,14 @@ StatRoseDrasticallyText:
 
 StatFellText:
 	text "<USER>'s"
-	line "@"
+	line ""
 	text_from_ram wStringBuffer2
 	text " fell!"
 	prompt
 
 StatHarshlyFellText:
 	text "<USER>'s"
-	line "@"
+	line ""
 	text_from_ram wStringBuffer2
 	text " harshly"
 	cont "fell!"
@@ -1031,7 +1004,7 @@ StatHarshlyFellText:
 
 StatSeverelyFellText:
 	text "<USER>'s"
-	line "@"
+	line ""
 	text_from_ram wStringBuffer2
 	text " severely"
 	cont "fell!"
@@ -1048,13 +1021,13 @@ FledInFearText:
 	prompt
 
 Hit1TimeText:
-	text "Hit @"
+	text "Hit "
 	deciram wStringBuffer1, 1, 1
 	text " time!"
 	prompt
 
 HitNTimesText:
-	text "Hit @"
+	text "Hit "
 	deciram wStringBuffer1, 1, 1
 	text " times!"
 	prompt
@@ -1118,7 +1091,7 @@ EvadedText:
 
 WasDisabledText:
 	text "<TARGET>'s"
-	line "@"
+	line ""
 	text_from_ram wStringBuffer2
 	text " was"
 	cont "disabled!"
@@ -1132,7 +1105,7 @@ CoinsScatteredText:
 TransformedTypeText:
 	text "<USER>"
 	line "became the"
-	cont "@"
+	cont ""
 	text_from_ram wStringBuffer1
 	text "-type!"
 	prompt
@@ -1145,7 +1118,7 @@ EliminatedStatsText:
 TransformedText:
 	text "<USER>"
 	line "transformed into"
-	cont "@"
+	cont ""
 	text_from_ram wStringBuffer1
 	text "!"
 	prompt
@@ -1221,7 +1194,7 @@ AlreadyParalyzedText:
 ProtectedByText:
 	text "<TARGET> is"
 	line "protected by"
-	cont "@"
+	cont ""
 	text_from_ram wStringBuffer1
 	text "!"
 	prompt
@@ -1229,7 +1202,7 @@ ProtectedByText:
 RegainedStatsWithItem:
 	text "<USER>"
 	line "regained stats"
-	cont "with @"
+	cont "with "
 	text_from_ram wStringBuffer1
 	text "!"
 	prompt
@@ -1237,7 +1210,7 @@ RegainedStatsWithItem:
 CuredInfatuationWithItem:
 	text "<USER>"
 	line "cured infatuation"
-	cont "with @"
+	cont "with "
 	text_from_ram wStringBuffer1
 	text "!"
 	prompt
@@ -1245,7 +1218,7 @@ CuredInfatuationWithItem:
 CuredEncoreWithItem:
 	text "<USER>"
 	line "cured Encore"
-	cont "with @"
+	cont "with "
 	text_from_ram wStringBuffer1
 	text "!"
 	prompt
@@ -1253,23 +1226,22 @@ CuredEncoreWithItem:
 CuredDisableWithItem:
 	text "<USER>"
 	line "cured Disable"
-	cont "with @"
+	cont "with "
 	text_from_ram wStringBuffer1
 	text "!"
 	prompt
 
 StoleText:
 	text "<USER>"
-	line "stole @"
+	line "stole "
 	text_from_ram wStringBuffer1
-	text ""
 	cont "from its foe!"
 	prompt
 
 KnockedOffItemText:
 	text "<USER>"
 	line "knocked off"
-	cont "@"
+	cont ""
 	text_from_ram wStringBuffer1
 	text "!"
 	prompt
@@ -1357,7 +1329,7 @@ SafeguardProtectText:
 	prompt
 
 MagnitudeText:
-	text "Magnitude @"
+	text "Magnitude "
 	deciram wd265, 1, 2
 	text "!"
 	prompt
@@ -1424,7 +1396,7 @@ BecameHealthyText:
 NotifyAirBalloonText:
 	text "<USER>"
 	line "floats in the air"
-	cont "with @"
+	cont "with "
 	text_from_ram wStringBuffer1
 	text "!"
 	prompt
@@ -1432,7 +1404,7 @@ NotifyAirBalloonText:
 TraceActivationText:
 	text "<USER>"
 	line "traced"
-	cont "@"
+	cont ""
 	text_from_ram wStringBuffer1
 	text "!"
 	prompt
@@ -1445,9 +1417,9 @@ TraceFailureText:
 
 BattleText_IntimidateResisted:
 	text "<TARGET>'s"
-	line "@"
+	line ""
 	text_from_ram wStringBuffer1
-	text ""
+
 	para "protects it from"
 	line "Intimidate!"
 	prompt
@@ -1484,7 +1456,7 @@ FriskedItemText:
 	line "frisked its foe"
 
 	para "and found a"
-	line "@"
+	line ""
 	text_from_ram wStringBuffer1
 	text "!"
 	prompt
@@ -1492,7 +1464,7 @@ FriskedItemText:
 PickedItemText:
 	text "<USER>"
 	line "picked up"
-	cont "@"
+	cont ""
 	text_from_ram wStringBuffer1
 	text "!"
 	prompt
@@ -1500,7 +1472,7 @@ PickedItemText:
 HarvestedItemText:
 	text "<USER>"
 	line "harvested"
-	cont "@"
+	cont ""
 	text_from_ram wStringBuffer1
 	text "!"
 	prompt
@@ -1519,7 +1491,7 @@ AngerPointMaximizedAttackText:
 CannotUseText:
 	text "<TARGET>"
 	line "cannot use"
-	cont "@"
+	cont ""
 	text_from_ram wStringBuffer1
 	text "!"
 	prompt
@@ -1533,7 +1505,7 @@ ShudderedText:
 
 ForewarnText:
 	text "<TARGET>"
-	line "has @"
+	line "has "
 	text_from_ram wStringBuffer1
 	text "!"
 	prompt
@@ -1541,7 +1513,7 @@ ForewarnText:
 BouncedBackText:
 	text "<USER>"
 	line "bounced the"
-	cont "@"
+	cont ""
 	text_from_ram wStringBuffer1
 	text " back!"
 	prompt
@@ -1561,7 +1533,7 @@ SuckedUpOozeText:
 BattleText_EnemyWithdrew::
 	text "<ENEMY>"
 	line "withdrew"
-	cont "@"
+	cont ""
 	text_from_ram wEnemyMonNick
 	text "!"
 	prompt

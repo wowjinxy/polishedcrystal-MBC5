@@ -46,35 +46,37 @@ ReturnFromMapSetupScript::
 	jr z, .dont_do_map_sign
 .not_vermilion_city
 
-; Landmark sign timer:
-; $80-$70: Sliding out (old sign)
-; $6f-$6d: Loading new graphics
-; $6c-$5d: Sliding in
-; $5c-$10: Remains visible
-; $0f-$00: Sliding out
+; Landmark sign timer: descends $74-$00
+; $73-$68: Sliding out (old sign)
+; $67-$65: Loading new graphics
+; $64-$59: Sliding in
+; $58-$0c: Remains visible
+; $0b-$00: Sliding out
 	ld a, [wLandmarkSignTimer]
-	sub $70
-	jr nc, .sliding_out
-	add $70
-	cp $10
-	jr c, .sliding_out
-	sub $5d
-	jr c, .visible
-	cp $10
-	jr c, .sliding_in
+	sub MAPSIGNSTAGE_2_LOADGFX
+	jr nc, .stage_1_sliding_out
+	add MAPSIGNSTAGE_2_LOADGFX
+	cp MAPSIGNSTAGE_5_SLIDEOUT
+	jr c, .stage_1_sliding_out
+	sub MAPSIGNSTAGE_4_VISIBLE
+	jr c, .stage_4_visible
+	cp MAPSIGNSTAGE_5_SLIDEOUT
+	jr c, .stage_3_sliding_in
+	; was in stage 2, loading new graphics; just reload them again
+	ld a, MAPSIGNSTAGE_2_LOADGFX
+	jr .value_ok
 
-	; was loading new graphics -- just reload them again
-	ld a, $70
+.stage_1_sliding_out
+	add MAPSIGNSTAGE_2_LOADGFX
 	jr .value_ok
-.sliding_in
+
+.stage_3_sliding_in
 	cpl
-	add $80 + 1 ; a = $80 - a
+	add MAPSIGNSTAGE_1_SLIDEOLD + 1 ; a = MAPSIGNSTAGE_1_SLIDEOLD - a
 	jr .value_ok
-.visible
-	ld a, $80
-	jr .value_ok
-.sliding_out
-	add $70
+
+.stage_4_visible
+	ld a, MAPSIGNSTAGE_1_SLIDEOLD
 .value_ok
 	ld [wLandmarkSignTimer], a
 	ret
@@ -82,7 +84,7 @@ ReturnFromMapSetupScript::
 .dont_do_map_sign
 	ld a, [wCurLandmark]
 	ld [wPrevLandmark], a
-	ld a, $90
+	ld a, SCREEN_HEIGHT_PX
 	ldh [rWY], a
 	ldh [hWY], a
 	xor a
@@ -144,41 +146,44 @@ PlaceMapNameSign::
 	ld hl, wLandmarkSignTimer
 	ld a, [hl]
 	and a
-	jr z, .sliding_out
+	jr z, .stage_5_sliding_out
 	dec [hl]
-	sub $70
-	jr nc, .sliding_out
-	add $70
-	cp $6f
+	sub MAPSIGNSTAGE_2_LOADGFX
+	jr nc, .stage_5_sliding_out
+	add MAPSIGNSTAGE_2_LOADGFX
+	cp MAPSIGNSTAGE_2_LOADGFX - 1
 	ret nc
-	sub $6d
+	sub MAPSIGNSTAGE_3_SLIDEIN
 	jr c, .graphics_ok
 	jp nz, LoadMapNameSignGFX
 	push hl
 	call InitMapNameFrame
 	farcall HDMATransfer_OnlyTopFourRows
 	pop hl
+
 .graphics_ok
 	ld a, [hl]
-	cp $5d
-	jr nc, .sliding_in
-	cp $10
-	jr c, .sliding_out
-	ld a, $70
+	cp MAPSIGNSTAGE_4_VISIBLE
+	jr nc, .stage_3_sliding_in
+	cp MAPSIGNSTAGE_5_SLIDEOUT
+	jr c, .stage_5_sliding_out
+	ld a, SCREEN_HEIGHT_PX - 3 * TILE_WIDTH
 	jr .got_value
-.sliding_in
-	sub $5d
+
+.stage_3_sliding_in
+	sub MAPSIGNSTAGE_4_VISIBLE
 	add a
-	add $70
+	add SCREEN_HEIGHT_PX - 3 * TILE_WIDTH
 	jr .got_value
-.sliding_out
+
+.stage_5_sliding_out
 	add a
 	cpl
-	add $90 + 1 ; a = $90 - a
+	add SCREEN_HEIGHT_PX + TILE_WIDTH + 1 ; a = SCREEN_HEIGHT_PX + TILE_WIDTH - a
 .got_value
 	ldh [rWY], a
 	ldh [hWY], a
-	sub $90
+	sub SCREEN_HEIGHT_PX
 	ret nz
 	ldh [hLCDCPointer], a
 	ret
@@ -272,16 +277,11 @@ endr
 	pop de
 	add hl, bc
 .got_tile
-	; save position in vram
-	push de
 	; swap hl and de, so de = font tile graphic, and hl = vram
-	push hl
-	ld h, d
-	ld l, e
-	pop de
+	call SwapHLDE
 	; get font tile into vram
+	push hl
 	call GetOpaque1bppFontTile
-	; restore hl = position in vram
 	pop hl
 	; increment position in vram
 	ld bc, LEN_2BPP_TILE
@@ -304,15 +304,13 @@ InitMapNameFrame:
 	rst ByteFill
 	or X_FLIP
 	ld [hli], a
-	; middle rows
-rept 2
+	; middle row
 	and $ff - X_FLIP
 	ld [hli], a
 	ld bc, SCREEN_WIDTH - 2
 	rst ByteFill
 	or X_FLIP
 	ld [hli], a
-endr
 	; bottom row
 	and $ff - X_FLIP
 	ld bc, SCREEN_WIDTH - 1
@@ -322,60 +320,37 @@ endr
 ; PlaceMapNameFrame
 	hlcoord 0, 0
 	; top left
-	ld a, POPUP_MAP_FRAME_START ; $f8
+	ld a, POPUP_MAP_FRAME_START ; $f3
 	ld [hli], a
 	; top row
-	inc a ; $f9
+	inc a ; $f4
 	call .FillTopBottom
 	; top right
-	dec a ; $f8
+	dec a ; $f3
 	ld [hli], a
-	; left, first line
-	ld a, POPUP_MAP_FRAME_START + 3 ; $fb
+	; middle left
+	ld a, POPUP_MAP_FRAME_START + 3 ; $f6
 	ld [hli], a
-	; first line
-	call .FillUpperMiddle
-	; right, first line
-	ld [hli], a
-	; left, second line
-	inc a ; $fc
-	ld [hli], a
-	; second line
-	call .FillLowerMiddle
-	; right, second line
-	ld [hli], a
-	; bottom left
-	inc a ; $fd
-	ld [hli], a
-	; bottom
-	inc a ; $fe
-	call .FillTopBottom
-	; bottom right
-	dec a ; $fd
-	ld [hl], a
-	ret
-
-.FillUpperMiddle:
-	push af
-	ld a, POPUP_MAP_FRAME_SPACE
-	ld c, SCREEN_WIDTH - 2
-.loop
-	ld [hli], a
-	dec c
-	jr nz, .loop
-	pop af
-	ret
-
-.FillLowerMiddle:
-	push af
+	; middle row
 	ld a, POPUP_MAP_NAME_START
 	ld c, SCREEN_WIDTH - 2
-.loop2
+.middleloop
 	ld [hli], a
 	inc a
 	dec c
-	jr nz, .loop2
-	pop af
+	jr nz, .middleloop
+	; middle right
+	ld a, POPUP_MAP_FRAME_START + 4 ; $f7
+	ld [hli], a
+	; bottom left
+	inc a ; $f8
+	ld [hli], a
+	; bottom
+	inc a ; $f9
+	call .FillTopBottom
+	; bottom right
+	dec a ; $f8
+	ld [hl], a
 	ret
 
 .FillTopBottom:

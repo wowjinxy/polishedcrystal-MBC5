@@ -250,7 +250,7 @@ endc
 	rawchar "Old Amber@"
 	rawchar "Mulch@"
 	rawchar "Sweet Honey@"
-	rawchar "Mint@"
+	rawchar "Mint Leaf@"
 	rawchar "Flower Mail@"
 	rawchar "Surf Mail@"
 	rawchar "LiteBlueMail@"
@@ -292,3 +292,4 @@ KeyItemNames::
 	rawchar "Catch Charm@"
 	rawchar "SilphScope2@"
 	rawchar "Apricorn Box@"
+	rawchar "Type Chart@"

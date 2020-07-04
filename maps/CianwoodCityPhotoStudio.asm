@@ -47,7 +47,7 @@ FishingGuruScript_0x9e0e0:
 	writetext PhotoStudioPrestoText
 	special PlayCurMonCry
 	waitbutton
-	thisopenedtext
+	jumpthisopenedtext
 
 	text "Come again, OK?"
 	done
@@ -86,9 +86,8 @@ PhotoStudioHoldStillText:
 PhotoStudioPrestoText:
 	text "Presto! All done."
 
-	para "Your @"
+	para "Your "
 	text_from_ram wStringBuffer3
-	text ""
 	line "looks happier!"
 	done
 

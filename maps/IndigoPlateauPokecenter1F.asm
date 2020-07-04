@@ -324,7 +324,7 @@ PlateauRivalLeavesMovement:
 
 PokemonJournalGiovanniScript:
 	setflag ENGINE_READ_GIOVANNI_JOURNAL
-	thistext
+	jumpthistext
 
 	text "#mon Journal"
 
@@ -405,7 +405,7 @@ IndigoPlateauYellowScript:
 	end
 
 .PartyFull:
-	thisopenedtext
+	jumpthisopenedtext
 
 	text "Yellow: Oh…"
 	line "You can't carry"
@@ -464,7 +464,7 @@ IndigoPlateauYellowScript:
 	text "Yellow: You take"
 	line "good care of that"
 
-	para "@"
+	para ""
 	text_from_ram wStringBuffer3
 	text ","
 	line "<PLAYER>!"
@@ -476,7 +476,7 @@ IndigoPlateauYellowScript:
 
 .ReceivedKantoStarterText:
 	text "<PLAYER> received"
-	line "@"
+	line ""
 	text_from_ram wStringBuffer3
 	text "!"
 	done

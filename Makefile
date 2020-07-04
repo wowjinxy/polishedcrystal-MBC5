@@ -70,7 +70,7 @@ main.o \
 home.o \
 ram.o \
 audio.o \
-audio/musicplayer.o \
+audio/music_player.o \
 data/pokemon/dex_entries.o \
 data/pokemon/egg_moves.o \
 data/pokemon/evos_attacks.o \
@@ -80,7 +80,9 @@ data/tilesets.o \
 engine/movie/credits.o \
 engine/overworld/events.o \
 gfx/pics.o \
+gfx/icons.o \
 gfx/sprites.o \
+gfx/items.o \
 gfx/misc.o
 
 
@@ -106,8 +108,9 @@ endif
 
 tools: $(LZ) $(SCAN_INCLUDES)
 
-$(LZ): $(LZ).c
-	$(CC) $(CFLAGS) -o $@ $<
+$(LZ): CFLAGS = -O3 -flto -std=c11 -Wall -Wextra -pedantic -Wno-strict-overflow -Wno-sign-compare
+$(LZ): $(wildcard tools/lz/*.c) $(wildcard tools/lz/*.h)
+	$(CC) $(CFLAGS) -o $@ tools/lz/*.c
 
 $(SCAN_INCLUDES): $(SCAN_INCLUDES).c
 	$(CC) $(CFLAGS) -o $@ $<
@@ -162,7 +165,7 @@ gfx/pokemon/%/bitmask.asm gfx/pokemon/%/frames.asm: gfx/pokemon/%/front.2bpp
 data/tilesets/%_collision.bin: data/tilesets/%_collision.asm
 	RGBDS_DIR=$(RGBDS_DIR) $(COLLISION_ASM2BIN) $< $@
 
-%.lz: % ; $(LZ) $< $@
+%.lz: % ; $(LZ) -- $< $@
 
 %.pal: ; $(error ERROR: Cannot find '$@')
 %.png: ; $(error ERROR: Cannot find '$@')

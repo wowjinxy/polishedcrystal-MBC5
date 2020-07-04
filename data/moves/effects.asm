@@ -51,12 +51,12 @@ XScissor:
 	usedmovetext
 	doturn
 	hastarget
+	checkhit
 	critical
 	damagestats
 	damagecalc
 	stab
 	damagevariation
-	checkhit
 	moveanim
 	failuretext
 	applydamage
@@ -72,12 +72,12 @@ SuckerPunch:
 	doturn
 	hastarget
 	suckerpunch
+	checkhit
 	critical
 	damagestats
 	damagecalc
 	stab
 	damagevariation
-	checkhit
 	moveanim
 	failuretext
 	applydamage
@@ -98,12 +98,12 @@ DrainPunch:
 	usedmovetext
 	doturn
 	hastarget
+	checkhit
 	critical
 	damagestats
 	damagecalc
 	stab
 	damagevariation
-	checkhit
 	moveanim
 	failuretext
 	applydamage
@@ -121,12 +121,12 @@ SwitchHit:
 	usedmovetext
 	doturn
 	hastarget
+	checkhit
 	critical
 	damagestats
 	damagecalc
 	stab
 	damagevariation
-	checkhit
 	moveanim
 	failuretext
 	applydamage
@@ -181,12 +181,12 @@ BraveBird:
 	usedmovetext
 	doturn
 	hastarget
+	checkhit
 	critical
 	damagestats
 	damagecalc
 	stab
 	damagevariation
-	checkhit
 	moveanim
 	failuretext
 	applydamage
@@ -214,13 +214,13 @@ ZenHeadbutt:
 	usedmovetext
 	doturn
 	hastarget
+	checkhit
 	critical
 	effectchance
 	damagestats
 	damagecalc
 	stab
 	damagevariation
-	checkhit
 	moveanim
 	failuretext
 	applydamage
@@ -240,13 +240,13 @@ GunkShot:
 	usedmovetext
 	doturn
 	hastarget
+	checkhit
 	critical
 	effectchance
 	damagestats
 	damagecalc
 	stab
 	damagevariation
-	checkhit
 	moveanim
 	failuretext
 	applydamage
@@ -266,13 +266,13 @@ FireBlast:
 	usedmovetext
 	doturn
 	hastarget
+	checkhit
 	critical
 	effectchance
 	damagestats
 	damagecalc
 	stab
 	damagevariation
-	checkhit
 	moveanim
 	failuretext
 	applydamage
@@ -295,13 +295,13 @@ ZapCannon:
 	usedmovetext
 	doturn
 	hastarget
+	checkhit
 	critical
 	effectchance
 	damagestats
 	damagecalc
 	stab
 	damagevariation
-	checkhit
 	moveanim
 	failuretext
 	applydamage
@@ -317,6 +317,7 @@ BodySlam:
 	usedmovetext
 	doturn
 	hastarget
+	checkhit
 	critical
 	effectchance
 	damagestats
@@ -324,7 +325,6 @@ BodySlam:
 	stab
 	damagevariation
 	doubleminimizedamage
-	checkhit
 	moveanim
 	failuretext
 	applydamage
@@ -340,13 +340,13 @@ SleepHit:
 	usedmovetext
 	doturn
 	hastarget
+	checkhit
 	critical
 	effectchance
 	damagestats
 	damagecalc
 	stab
 	damagevariation
-	checkhit
 	moveanim
 	failuretext
 	applydamage
@@ -365,13 +365,13 @@ Blizzard:
 	usedmovetext
 	doturn
 	hastarget
+	checkhit
 	critical
 	effectchance
 	damagestats
 	damagecalc
 	stab
 	damagevariation
-	checkhit
 	moveanim
 	failuretext
 	applydamage
@@ -393,13 +393,13 @@ Hurricane:
 	usedmovetext
 	doturn
 	hastarget
+	checkhit
 	critical
 	effectchance
 	damagestats
 	damagecalc
 	stab
 	damagevariation
-	checkhit
 	moveanim
 	failuretext
 	applydamage
@@ -416,13 +416,13 @@ MetalClaw:
 	usedmovetext
 	doturn
 	hastarget
+	checkhit
 	critical
 	effectchance
 	damagestats
 	damagecalc
 	stab
 	damagevariation
-	checkhit
 	moveanim
 	failuretext
 	applydamage
@@ -439,13 +439,13 @@ SteelWing:
 	usedmovetext
 	doturn
 	hastarget
+	checkhit
 	critical
 	effectchance
 	damagestats
 	damagecalc
 	stab
 	damagevariation
-	checkhit
 	moveanim
 	failuretext
 	applydamage
@@ -456,19 +456,42 @@ SteelWing:
 	posthiteffects
 	endmove
 
-AllUpHit:
-Ancientpower:
+SpeedUpHit:
+FlameCharge:
 	checkobedience
 	usedmovetext
 	doturn
 	hastarget
+	checkhit
 	critical
 	effectchance
 	damagestats
 	damagecalc
 	stab
 	damagevariation
+	moveanim
+	failuretext
+	applydamage
+	criticaltext
+	supereffectivetext
+	raisestathit SPEED
+	postfainteffects
+	posthiteffects
+	endmove
+
+AllUpHit:
+Ancientpower:
+	checkobedience
+	usedmovetext
+	doturn
+	hastarget
 	checkhit
+	critical
+	effectchance
+	damagestats
+	damagecalc
+	stab
+	damagevariation
 	moveanim
 	failuretext
 	applydamage
@@ -489,21 +512,21 @@ AuroraBeam:
 	usedmovetext
 	doturn
 	hastarget
+	checkhit
 	critical
 	effectchance
 	damagestats
 	damagecalc
 	stab
 	damagevariation
-	checkhit
 	moveanim
 	failuretext
 	applydamage
 	criticaltext
 	supereffectivetext
+	loweroppstathit ATTACK
 	postfainteffects
 	posthiteffects
-	loweroppstathit ATTACK
 	endmove
 
 DefenseDownHit:
@@ -513,21 +536,21 @@ IronTail:
 	usedmovetext
 	doturn
 	hastarget
+	checkhit
 	critical
 	effectchance
 	damagestats
 	damagecalc
 	stab
 	damagevariation
-	checkhit
 	moveanim
 	failuretext
 	applydamage
 	criticaltext
 	supereffectivetext
+	loweroppstathit DEFENSE
 	postfainteffects
 	posthiteffects
-	loweroppstathit DEFENSE
 	endmove
 
 BrickBreak:
@@ -535,6 +558,7 @@ BrickBreak:
 	usedmovetext
 	doturn
 	hastarget
+	checkhit
 	critical
 	effectchance
 	resettypematchup
@@ -543,7 +567,6 @@ BrickBreak:
 	damagecalc
 	stab
 	damagevariation
-	checkhit
 	moveanim
 	failuretext
 	applydamage
@@ -561,21 +584,21 @@ Bulldoze:
 	usedmovetext
 	doturn
 	hastarget
+	checkhit
 	critical
 	effectchance
 	damagestats
 	damagecalc
 	stab
 	damagevariation
-	checkhit
 	moveanim
 	failuretext
 	applydamage
 	criticaltext
 	supereffectivetext
+	loweroppstathit SPEED
 	postfainteffects
 	posthiteffects
-	loweroppstathit SPEED
 	endmove
 
 SpecialAttackDownHit:
@@ -584,21 +607,21 @@ Moonblast:
 	usedmovetext
 	doturn
 	hastarget
+	checkhit
 	critical
 	effectchance
 	damagestats
 	damagecalc
 	stab
 	damagevariation
-	checkhit
 	moveanim
 	failuretext
 	applydamage
 	criticaltext
 	supereffectivetext
+	loweroppstathit SP_ATTACK
 	postfainteffects
 	posthiteffects
-	loweroppstathit SP_ATTACK
 	endmove
 
 SpecialDefenseDownHit:
@@ -614,21 +637,21 @@ ShadowBall:
 	usedmovetext
 	doturn
 	hastarget
+	checkhit
 	critical
 	effectchance
 	damagestats
 	damagecalc
 	stab
 	damagevariation
-	checkhit
 	moveanim
 	failuretext
 	applydamage
 	criticaltext
 	supereffectivetext
+	loweroppstathit SP_DEFENSE
 	postfainteffects
 	posthiteffects
-	loweroppstathit SP_DEFENSE
 	endmove
 
 AccuracyDownHit:
@@ -638,21 +661,21 @@ Octazooka:
 	usedmovetext
 	doturn
 	hastarget
+	checkhit
 	critical
 	effectchance
 	damagestats
 	damagecalc
 	stab
 	damagevariation
-	checkhit
 	moveanim
 	failuretext
 	applydamage
 	criticaltext
 	supereffectivetext
+	loweroppstathit ACCURACY
 	postfainteffects
 	posthiteffects
-	loweroppstathit ACCURACY
 	endmove
 
 EvasionDownHit:
@@ -660,21 +683,21 @@ EvasionDownHit:
 	usedmovetext
 	doturn
 	hastarget
+	checkhit
 	critical
 	effectchance
 	damagestats
 	damagecalc
 	stab
 	damagevariation
-	checkhit
 	moveanim
 	failuretext
 	applydamage
 	criticaltext
 	supereffectivetext
+	loweroppstathit EVASION
 	postfainteffects
 	posthiteffects
-	loweroppstathit EVASION
 	endmove
 
 CloseCombat:
@@ -682,13 +705,13 @@ CloseCombat:
 	usedmovetext
 	doturn
 	hastarget
+	checkhit
 	critical
 	effectchance
 	damagestats
 	damagecalc
 	stab
 	damagevariation
-	checkhit
 	moveanim
 	failuretext
 	applydamage
@@ -710,8 +733,8 @@ SuperFang:
 	usedmovetext
 	doturn
 	hastarget
-	constantdamage
 	checkhit
+	constantdamage
 	resettypematchup
 	moveanim
 	failuretext
@@ -726,8 +749,8 @@ Poisonpowder:
 	usedmovetext
 	doturn
 	hastarget
-	checkpowder
 	checkhit
+	checkpowder
 	bounceback
 	stab
 	checksafeguard
@@ -752,8 +775,8 @@ WillOWisp:
 	usedmovetext
 	doturn
 	hastarget
-	resettypematchup
 	checkhit
+	resettypematchup
 	bounceback
 	stab
 	checksafeguard
@@ -768,8 +791,8 @@ Glare:
 	usedmovetext
 	doturn
 	hastarget
-	checkpowder
 	checkhit
+	checkpowder
 	bounceback
 	checksafeguard
 	paralyze
@@ -784,8 +807,8 @@ Spore:
 	usedmovetext
 	doturn
 	hastarget
-	checkpowder
 	checkhit
+	checkpowder
 	bounceback
 	checksafeguard
 	sleeptarget
@@ -1230,12 +1253,12 @@ Explosion:
 	usedmovetext
 	doturn
 	hastarget
+	checkhit
 	critical
 	damagestats
 	damagecalc
 	stab
 	damagevariation
-	checkhit
 	selfdestruct
 	moveanimnosub
 	failuretext
@@ -1251,12 +1274,12 @@ DreamEater:
 	usedmovetext
 	doturn
 	hastarget
+	checkhit
 	critical
 	damagestats
 	damagecalc
 	stab
 	damagevariation
-	checkhit
 	moveanim
 	failuretext
 	applydamage
@@ -1306,12 +1329,12 @@ PayDay:
 	usedmovetext
 	doturn
 	hastarget
+	checkhit
 	critical
 	damagestats
 	damagecalc
 	stab
 	damagevariation
-	checkhit
 	moveanim
 	failuretext
 	applydamage
@@ -1327,12 +1350,12 @@ KnockOff:
 	usedmovetext
 	doturn
 	hastarget
+	checkhit
 	critical
 	damagestats
 	damagecalc
 	stab
 	damagevariation
-	checkhit
 	conditionalboost
 	moveanim
 	failuretext
@@ -1349,13 +1372,12 @@ BugBite:
 	usedmovetext
 	doturn
 	hastarget
+	checkhit
 	critical
 	damagestats
 	damagecalc
 	stab
 	damagevariation
-	checkhit
-	conditionalboost
 	moveanim
 	failuretext
 	bugbite ; before applydamage to steal HP berries before they take effect
@@ -1371,12 +1393,12 @@ TriAttack:
 	usedmovetext
 	doturn
 	hastarget
+	checkhit
 	critical
 	damagestats
 	damagecalc
 	stab
 	damagevariation
-	checkhit
 	moveanim
 	failuretext
 	applydamage
@@ -1408,12 +1430,12 @@ GigaImpact:
 	usedmovetext
 	doturn
 	hastarget
+	checkhit
 	critical
 	damagestats
 	damagecalc
 	stab
 	damagevariation
-	checkhit
 	moveanim
 	failuretext
 	applydamage
@@ -1429,12 +1451,12 @@ Rage:
 	usedmovetext
 	doturn
 	hastarget
+	checkhit
 	critical
 	damagestats
 	damagecalc
 	stab
 	damagevariation
-	checkhit
 	moveanim
 	failuretext
 	rage
@@ -1538,9 +1560,9 @@ Reversal:
 	usedmovetext
 	doturn
 	hastarget
+	checkhit
 	constantdamage
 	stab
-	checkhit
 	moveanim
 	failuretext
 	applydamage
@@ -1554,13 +1576,13 @@ FalseSwipe:
 	usedmovetext
 	doturn
 	hastarget
+	checkhit
 	critical
 	damagestats
 	damagecalc
 	stab
 	damagevariation
 	falseswipe
-	checkhit
 	moveanim
 	failuretext
 	applydamage
@@ -1582,6 +1604,7 @@ Thief:
 	usedmovetext
 	doturn
 	hastarget
+	checkhit
 	critical
 	; Yes, thief is 100% but this makes Sheer Force and Substitute be handled correctly
 	effectchance
@@ -1589,7 +1612,6 @@ Thief:
 	damagecalc
 	stab
 	damagevariation
-	checkhit
 	moveanim
 	failuretext
 	applydamage
@@ -1607,29 +1629,6 @@ MeanLook:
 	hastarget
 	bounceback
 	arenatrap
-	endmove
-
-FlameWheel:
-	checkobedience
-	usedmovetext
-	doturn
-	hastarget
-	critical
-	effectchance
-	damagestats
-	damagecalc
-	stab
-	damagevariation
-	checkhit
-	moveanim
-	failuretext
-	applydamage
-	criticaltext
-	supereffectivetext
-	defrost
-	postfainteffects
-	posthiteffects
-	burntarget
 	endmove
 
 Curse:
@@ -1707,11 +1706,11 @@ Rollout:
 	usedmovetext
 	doturn
 	hastarget
+	checkhit
 	critical
 	damagestats
 	damagecalc
 	stab
-	checkhit
 	rolloutpower
 	damagevariation
 	moveanim
@@ -1734,8 +1733,8 @@ Swagger:
 	confusetarget
 	endmove
 
-Avalanche:
 Acrobatics:
+Avalanche:
 Facade:
 Hex:
 Venoshock:
@@ -1744,11 +1743,11 @@ ConditionalBoostHit:
 	usedmovetext
 	doturn
 	hastarget
+	checkhit
 	critical
 	damagestats
 	damagecalc
 	stab
-	checkhit
 	conditionalboost
 	damagevariation
 	moveanim
@@ -1775,13 +1774,13 @@ Return:
 	usedmovetext
 	doturn
 	hastarget
+	checkhit
 	critical
 	damagestats
 	happinesspower
 	damagecalc
 	stab
 	damagevariation
-	checkhit
 	moveanim
 	failuretext
 	applydamage
@@ -1796,13 +1795,13 @@ SacredFire:
 	usedmovetext
 	doturn
 	hastarget
+	checkhit
 	critical
 	effectchance
 	damagestats
 	damagecalc
 	stab
 	damagevariation
-	checkhit
 	moveanim
 	failuretext
 	applydamage
@@ -1819,13 +1818,13 @@ Magnitude:
 	usedmovetext
 	doturn
 	hastarget
+	checkhit
 	critical
 	damagestats
 	getmagnitude
 	damagecalc
 	stab
 	damagevariation
-	checkhit
 	doubleundergrounddamage
 	moveanim
 	failuretext
@@ -1841,13 +1840,13 @@ GyroBall:
 	usedmovetext
 	doturn
 	hastarget
+	checkhit
 	critical
 	damagestats
 	gyroball
 	damagecalc
 	stab
 	damagevariation
-	checkhit
 	moveanim
 	failuretext
 	applydamage
@@ -1862,13 +1861,13 @@ LowKick:
 	usedmovetext
 	doturn
 	hastarget
+	checkhit
 	critical
 	damagestats
 	lowkick
 	damagecalc
 	stab
 	damagevariation
-	checkhit
 	moveanim
 	failuretext
 	applydamage
@@ -1891,12 +1890,12 @@ Pursuit:
 	usedmovetext
 	doturn
 	hastarget
+	checkhit
 	critical
 	damagestats
 	damagecalc
 	stab
 	damagevariation
-	checkhit
 	conditionalboost
 	moveanim
 	failuretext
@@ -1912,13 +1911,13 @@ RapidSpin:
 	usedmovetext
 	doturn
 	hastarget
+	checkhit
 	critical
 	effectchance
 	damagestats
 	damagecalc
 	stab
 	damagevariation
-	checkhit
 	moveanim
 	failuretext
 	applydamage
@@ -1942,12 +1941,12 @@ HiddenPower:
 	usedmovetext
 	doturn
 	hastarget
+	checkhit
 	critical
 	hiddenpower
 	damagecalc
 	stab
 	damagevariation
-	checkhit
 	moveanim
 	failuretext
 	applydamage
@@ -1995,6 +1994,7 @@ Earthquake:
 	usedmovetext
 	doturn
 	hastarget
+	checkhit
 	critical
 	effectchance
 	damagestats
@@ -2002,7 +2002,6 @@ Earthquake:
 	stab
 	damagevariation
 	doubleundergrounddamage
-	checkhit
 	moveanim
 	failuretext
 	applydamage
@@ -2019,12 +2018,12 @@ FutureSight:
 	doturn
 	hastarget
 	futuresight
+	checkhit
 	critical
 	damagestats
 	damagecalc
 	stab
 	damagevariation
-	checkhit
 	moveanimnosub
 	failuretext
 	applydamage
@@ -2039,13 +2038,13 @@ Gust:
 	usedmovetext
 	doturn
 	hastarget
+	checkhit
 	critical
 	damagestats
 	damagecalc
 	stab
 	damagevariation
 	doubleflyingdamage
-	checkhit
 	moveanim
 	failuretext
 	applydamage
@@ -2060,6 +2059,7 @@ Stomp:
 	usedmovetext
 	doturn
 	hastarget
+	checkhit
 	critical
 	effectchance
 	damagestats
@@ -2067,7 +2067,6 @@ Stomp:
 	stab
 	damagevariation
 	doubleminimizedamage
-	checkhit
 	moveanim
 	failuretext
 	applydamage
@@ -2084,12 +2083,12 @@ SolarBeam:
 	doturn
 	hastarget
 	charge
+	checkhit
 	critical
 	damagestats
 	damagecalc
 	stab
 	damagevariation
-	checkhit
 	moveanim
 	failuretext
 	applydamage
@@ -2104,6 +2103,7 @@ Thunder:
 	usedmovetext
 	doturn
 	hastarget
+	checkhit
 	critical
 	effectchance
 	damagestats
@@ -2111,7 +2111,6 @@ Thunder:
 	stab
 	damagevariation
 	thunderaccuracy
-	checkhit
 	moveanim
 	failuretext
 	applydamage
@@ -2136,12 +2135,12 @@ Dig:
 	doturn
 	hastarget
 	charge
+	checkhit
 	critical
 	damagestats
 	damagecalc
 	stab
 	damagevariation
-	checkhit
 	moveanimnosub
 	raisesub
 	failuretext
@@ -2173,13 +2172,13 @@ FlareBlitz:
 	usedmovetext
 	doturn
 	hastarget
+	checkhit
 	critical
 	effectchance
 	damagestats
 	damagecalc
 	stab
 	damagevariation
-	checkhit
 	moveanim
 	failuretext
 	applydamage

@@ -16,6 +16,7 @@ TryAddMonToParty:
 	; Increase the party count
 	ld [de], a
 	ldh [hMoveMon], a ; HRAM backup
+	; de += a
 	add e
 	ld e, a
 	adc d
@@ -1683,9 +1684,8 @@ CalcPkmnStatC:
 	ld a, b
 	ld d, a
 	push hl
-	ld hl, wBaseStats
-	dec hl ; has to be decreased, because 'c' begins with 1
-	ld b, $0
+	ld hl, wBaseStats - 1 ; has to be decreased, because 'c' begins with 1
+	ld b, 0
 	add hl, bc
 	ld a, [hl]
 	ld e, a
@@ -1770,12 +1770,13 @@ CalcPkmnStatC:
 	and $f
 
 .GotDV:
-	ld d, 0
+	; de = e + a
 	add e
 	ld e, a
-	adc d
+	adc 0
 	sub e
 	ld d, a
+	; de = (de * 2) + 1
 	sla e
 	inc e
 	rl d

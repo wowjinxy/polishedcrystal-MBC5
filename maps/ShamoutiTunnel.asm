@@ -41,7 +41,7 @@ OreManiacScript:
 	playsound SFX_TRANSACTION
 	special Give_hMoneyTemp
 	special PlaceMoneyTopRight
-	thisopenedtext
+	jumpthisopenedtext
 
 	text "The deal is done!"
 	line "I've scored an ore"
@@ -65,7 +65,7 @@ OreManiacScript:
 	line "shaking me!"
 
 	para "Will you sell it"
-	line "for ¥@"
+	line "for ¥"
 	deciram hMoneyTemp, 3, 7
 	text "?"
 	done

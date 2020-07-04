@@ -181,10 +181,9 @@ PerformAbilityGFX:
 	push hl
 	ld l, a
 	ld h, 0
+rept 4
 	add hl, hl
-	add hl, hl
-	add hl, hl
-	add hl, hl
+endr
 	ld bc, vTiles1
 	add hl, bc
 	ld d, h
@@ -350,7 +349,7 @@ DismissAbilityOverlays:
 	ld c, SLIDEOUT_WIDTH
 .attr_loop
 	ld a, [hl]
-	and ~(OAM_PALETTE | TILE_BANK)
+	and $ff ^ (OAM_PALETTE | TILE_BANK | BEHIND_BG)
 	or b
 	ld [hli], a
 	dec c

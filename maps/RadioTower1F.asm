@@ -117,7 +117,7 @@ ReceptionistScript_0x5cd3d:
 	iffalse_jumpopenedtext UnknownText_0x5d0e6
 	itemnotify
 	setflag ENGINE_LUCKY_NUMBER_SHOW
-	thisopenedtext
+	jumpthisopenedtext
 
 .FifthPlace:
 	writetext WonFifthPlaceText
@@ -128,7 +128,7 @@ ReceptionistScript_0x5cd3d:
 	iffalse_jumpopenedtext UnknownText_0x5d0e6
 	itemnotify
 	setflag ENGINE_LUCKY_NUMBER_SHOW
-	thisopenedtext
+	jumpthisopenedtext
 
 UnknownText_0x5cf7e:
 	text "Please come back"
@@ -274,7 +274,7 @@ ExplainLuckyNumberShowText:
 
 UnknownText_0x5cf3a:
 	text "This week's ID"
-	line "number is @"
+	line "number is "
 	text_from_ram wStringBuffer3
 	text "."
 	done

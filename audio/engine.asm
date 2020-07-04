@@ -1364,7 +1364,7 @@ MusicF6:
 MusicF7:
 MusicF8:
 MusicF9:
-	ret
+	ret ; no-optimize stub function
 
 Music_EndChannel:
 ; called when $ff is encountered w/ subroutine flag set
@@ -1880,14 +1880,10 @@ Music_TempoRelative:
 	ld e, a
 	; check sign
 	cp $80
-	jr nc, .negative
-;positive
-	ld d, 0
-	jr .ok
-
-.negative
-	ld d, -1
-.ok
+	; d = carry ? 0 (positive) : -1 (negative)
+	ccf
+	sbc a
+	ld d, a
 	ld hl, wChannel1Tempo - wChannel1
 	add hl, bc
 	ld a, [hli]
@@ -2636,14 +2632,10 @@ ReloadWaveform::
     ; called from the music player
 	ld a, [wCurTrackIntensity]
 	and $f ; only NUM_WAVEFORMS are valid
+	; each wavepattern is $f bytes long, so seeking is done in $10s
+	swap a ; a << 4
 	ld l, a
 	ld h, 0
-	; hl << 4
-	; each wavepattern is $f bytes long
-	; so seeking is done in $10s
-rept 4
-	add hl, hl
-endr
 	ld de, WaveSamples
 	add hl, de
 	; load wavepattern into rWave_0-rWave_f
