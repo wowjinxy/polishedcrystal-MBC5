@@ -28,7 +28,7 @@ PopBCDEHL::
 SECTION "rst10 Bankswitch", ROM0[$0010]
 Bankswitch::
 	ldh [hROMBank], a
-	ld [MBC3RomBank], a
+	ld [MBC5RomBank], a
 	ret
 
 _de_::

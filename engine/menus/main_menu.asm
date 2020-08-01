@@ -143,9 +143,6 @@ MainMenu_PrintCurrentTimeAndDay:
 	ret
 
 .PlaceBox:
-	call CheckRTCStatus
-	and $80
-	jp nz, SpeechTextBox
 	hlcoord 0, 14
 	lb bc, 2, 18
 	jp TextBox
@@ -154,14 +151,6 @@ MainMenu_PrintCurrentTimeAndDay:
 	ld a, [wSaveFileExists]
 	and a
 	ret z
-	call CheckRTCStatus
-	and $80
-	jp nz, .PrintTimeNotSet
-
-;; kroc - NoRTC patch
-;; to get the main menu to show the correct time of the save,
-;; we need to pull the backed-up RTC time from the save file
-if DEF(NO_RTC)
 	ld a, BANK(sPlayerData)
 	call GetSRAMBank
 	ld hl, sPlayerData + wNoRTC - wPlayerData
@@ -169,8 +158,6 @@ if DEF(NO_RTC)
 	ld bc, 5
 	rst CopyBytes
 	call CloseSRAM
-endc
-
 	call UpdateTime
 	bccoord 1, 15
 	call Text_WeekDay

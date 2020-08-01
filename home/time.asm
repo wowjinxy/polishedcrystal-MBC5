@@ -1,15 +1,5 @@
 ; Functions relating to the timer interrupt and the real-time-clock.
 
-; do not talk to the RTC hardware in the no-RTC patch
-if !DEF(NO_RTC)
-LatchClock::
-; latch clock counter data
-	xor a
-	ld [MBC3LatchClock], a
-	inc a
-	ld [MBC3LatchClock], a
-	ret
-endc
 
 UpdateTime::
 	call GetClock ; read the clock hardware
@@ -19,49 +9,11 @@ UpdateTime::
 
 GetClock::
 ; store clock data in hRTCDayHi-hRTCSeconds
-
-if DEF(NO_RTC)
 	ld hl, wNoRTC
 	ld de, hRTCDayHi
 	ld bc, 5
 	rst CopyBytes
 	ret
-else
-; enable clock r/w
-	ld a, SRAM_ENABLE
-	ld [MBC3SRamEnable], a
-
-; clock data is 'backwards' in hram
-	call LatchClock
-	ld hl, MBC3SRamBank
-	ld de, MBC3RTC
-
-	ld [hl], RTC_S
-	ld a, [de]
-	and $3f
-	ldh [hRTCSeconds], a
-
-	ld [hl], RTC_M
-	ld a, [de]
-	and $3f
-	ldh [hRTCMinutes], a
-
-	ld [hl], RTC_H
-	ld a, [de]
-	and $1f
-	ldh [hRTCHours], a
-
-	ld [hl], RTC_DL
-	ld a, [de]
-	ldh [hRTCDayLo], a
-
-	ld [hl], RTC_DH
-	ld a, [de]
-	ldh [hRTCDayHi], a
-
-; unlatch clock / disable clock r/w
-	jp CloseSRAM
-endc
 
 FixDays::
 ; fix day count
@@ -199,47 +151,11 @@ SetClock::
 ; set clock data from hram
 
 ; do not talk to the RTC hardware in the no-RTC patch
-if DEF(NO_RTC)
 	ld hl, hRTCDayHi
 	ld de, wNoRTC
 	ld bc, 5
 	rst CopyBytes
 	ret
-else
-; enable clock r/w
-	ld a, SRAM_ENABLE
-	ld [MBC3SRamEnable], a
-
-; set clock data
-; stored 'backwards' in hram
-	call LatchClock
-	ld hl, MBC3SRamBank
-	ld de, MBC3RTC
-
-	ld [hl], RTC_S
-	ldh a, [hRTCSeconds]
-	ld [de], a
-
-	ld [hl], RTC_M
-	ldh a, [hRTCMinutes]
-	ld [de], a
-
-	ld [hl], RTC_H
-	ldh a, [hRTCHours]
-	ld [de], a
-
-	ld [hl], RTC_DL
-	ldh a, [hRTCDayLo]
-	ld [de], a
-
-	ld [hl], RTC_DH
-	ldh a, [hRTCDayHi]
-	res 6, a ; make sure timer is active
-	ld [de], a
-
-; cleanup
-	jp CloseSRAM ; unlatch clock, disable clock r/w
-endc
 
 RecordRTCStatus::
 ; append flags to sRTCStatusFlags

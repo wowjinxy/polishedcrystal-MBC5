@@ -99,11 +99,6 @@ INCLUDE "engine/events/daycare.asm"
 INCLUDE "engine/pokemon/breeding.asm"
 
 
-SECTION "Clock Reset", ROMX
-
-INCLUDE "engine/rtc/restart_clock.asm"
-
-
 SECTION "Effect Command Pointers", ROMX
 
 ; must come before data/moves/effects.asm and engine/battle/effect_commands.asm

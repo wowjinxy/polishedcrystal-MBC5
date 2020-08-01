@@ -345,8 +345,6 @@ Continue:
 	call DelayFrames
 	call ConfirmContinue
 	jp c, CloseWindow
-	call Continue_CheckRTC_RestartClock
-	jp c, CloseWindow
 	call Continue_CheckEGO_ResetInitialOptions
 ;	jp c, CloseWindow
 	ld a, $8
@@ -397,21 +395,6 @@ ConfirmContinue:
 	scf
 	ret
 
-Continue_CheckRTC_RestartClock:
-	call CheckRTCStatus
-	and %10000000 ; Day count exceeded 16383
-	jr z, .pass
-	farcall RestartClock
-	ld a, c
-	and a
-	jr z, .pass
-	scf
-	ret
-
-.pass
-	xor a
-	ret
-
 Continue_CheckEGO_ResetInitialOptions:
 	ld a, [wInitialOptions2]
 	bit RESET_INIT_OPTS, a
@@ -439,13 +422,6 @@ FinishContinueFunction:
 	jr .loop
 
 DisplaySaveInfoOnContinue:
-	call CheckRTCStatus
-	and %10000000
-	jr z, .clock_ok
-	lb de, 4, 8
-	jr DisplayContinueDataWithRTCError
-
-.clock_ok
 	lb de, 4, 8
 	jr DisplayNormalContinueData
 
@@ -457,13 +433,6 @@ DisplayNormalContinueData:
 	call Continue_LoadMenuHeader
 	call Continue_DisplayBadgesDexPlayerName
 	call Continue_PrintGameTime
-	call LoadFontsExtra
-	jp UpdateSprites
-
-DisplayContinueDataWithRTCError:
-	call Continue_LoadMenuHeader
-	call Continue_DisplayBadgesDexPlayerName
-	call Continue_UnknownGameTime
 	call LoadFontsExtra
 	jp UpdateSprites
 
@@ -587,7 +556,6 @@ Continue_DisplayGameTime:
 	jp PrintNum
 
 ProfElmSpeech:
-	farcall InitClock
 	ld c, 31
 	call FadeToBlack
 	call ClearTileMap

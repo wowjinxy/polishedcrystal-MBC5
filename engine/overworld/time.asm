@@ -34,11 +34,7 @@ NextCallReceiveDelay:
 	ret
 
 .ReceiveCallDelays:
-if DEF(NO_RTC)
 	db 20 * NO_RTC_SPEEDUP, 10 * NO_RTC_SPEEDUP, 5 * NO_RTC_SPEEDUP, 3 * NO_RTC_SPEEDUP
-else
-	db 20, 10, 5, 3
-endc
 
 CheckReceiveCallTimer:
 	call CheckReceiveCallDelay ; check timer
@@ -197,11 +193,7 @@ Special_SampleKenjiBreakCountdown:
 	ret
 
 StartBugContestTimer:
-if DEF(NO_RTC)
 	ld a, 20 * NO_RTC_SPEEDUP
-else
-	ld a, 20
-endc
 	ld [wBugContestMinsRemaining], a
 	xor a
 	ld [wBugContestSecsRemaining], a
@@ -340,4 +332,41 @@ _CalcDaysSince:
 .skip
 	ld [hl], c ; current days
 	ld [wDaysSince], a ; days since
+	ret
+
+; get time of day based on the current hour
+GetTimeOfDay::
+	ldh a, [hHours]
+	ld hl, TimesOfDay
+.check
+	cp [hl]
+	jr c, .match
+	inc hl
+	inc hl
+	jr .check
+.match
+	inc hl
+	ld a, [hl]
+	ld [wTimeOfDay], a
+	ret
+
+; hours for the time of day
+TimesOfDay:
+	db MORN_HOUR, NITE
+	db DAY_HOUR, MORN
+	db NITE_HOUR, DAY
+	db 24, NITE
+	db -1, MORN
+
+StageRTCTimeForSave:
+	call UpdateTime
+	ld hl, wRTC
+	ld a, [wCurDay]
+	ld [hli], a
+	ldh a, [hHours]
+	ld [hli], a
+	ldh a, [hMinutes]
+	ld [hli], a
+	ldh a, [hSeconds]
+	ld [hli], a
 	ret
