@@ -21,3 +21,4 @@ data/tilesets/*_collision.bin
 
 # local tools
 deploy.sh
+roms.md5
