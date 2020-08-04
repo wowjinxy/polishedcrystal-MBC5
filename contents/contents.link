@@ -215,21 +215,21 @@ WRAM0
 	align 8
 	"Audio RAM"
 	"WRAM 0"
-	org $c308
+	org $c2f9
 	"Sprite Animations"
 	"Music Player RAM"
-	org $c400
+	org $c3e0
 	align 8
 	"Sprites"
-	org $c4a0
-	"Tilemap and Attrmap"
-	"Battle"
-	org $c960
-	"Overworld Map"
-	org $cee0
-	"Video"
 	align 5
 	"16-bit WRAM home data"
+	org $c4c0
+	"Tilemap and Attrmap"
+	"Battle"
+	org $c970
+	"Overworld Map"
+	org $cef0
+	"Video"
 
 WRAMX $1
 	org $d000

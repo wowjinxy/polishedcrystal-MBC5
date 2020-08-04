@@ -137,9 +137,9 @@ wAutoInputLength:: db
 wMonStatusFlags:: db
 wGameLogicPaused:: db
 wSpriteUpdatesEnabled:: db
-	ds 1
+
 wMapTimeOfDay:: db
-	ds 5
+
 wPrevDexEntry:: db
 
 wPrevLandmark:: db
@@ -153,13 +153,13 @@ wLinkMode::
 
 wPlayerNextMovement:: db
 wPlayerMovement:: db
-	ds 2
+
 wMovementObject:: db
 wMovementDataPointer:: ds 3 ; dba
-	ds 4
+
 wMovementByteWasControlSwitch:: db
 wMovementPointer:: dw
-	ds 3
+
 
 wTempObjectCopyMapObjectIndex:: db
 wTempObjectCopySprite:: db
@@ -313,6 +313,10 @@ wVirtualOAMSprite38:: sprite_oam_struct wVirtualOAMSprite38
 wVirtualOAMSprite39:: sprite_oam_struct wVirtualOAMSprite39
 wVirtualOAMEnd::
 
+SECTION "16-bit WRAM home data", WRAM0
+; align to $20
+
+wConversionTableBitmap:: ds $20
 
 SECTION "Tilemap and Attrmap", WRAM0
 
@@ -1001,7 +1005,7 @@ wWhichIndexSet:: db
 wScrollingMenuCursorPosition:: db
 wWindowStackSize:: db
 
-	ds 8
+
 
 ; menu header
 wMenuHeader::
@@ -1014,7 +1018,7 @@ wMenuDataPointer:: dw
 wMenuCursorBuffer:: dw
 ; end menu data header
 wMenuDataBank:: db ; menu data bank?
-	ds 6
+
 wMenuHeaderEnd::
 
 ; TODO: organize this section better (integrate unions from pret/pokecrystal)
@@ -1089,7 +1093,7 @@ wBTTempOTSprite:: db
 wPendingOverworldGraphics:: db
 wTextDelayFrames:: db
 
-	ds 1
+
 
 wGenericDelay:: db
 
@@ -1193,8 +1197,3 @@ wDaysSince:: db
 wOptionsBuffer:: db
 
 wTempLoopCounter:: db
-
-SECTION "16-bit WRAM home data", WRAM0
-; align to $20
-
-wConversionTableBitmap:: ds $20
