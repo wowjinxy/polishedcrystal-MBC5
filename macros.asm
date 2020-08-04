@@ -20,3 +20,4 @@ INCLUDE "macros/monochrome.asm"
 endc
 
 INCLUDE "macros/wram_16bit.asm"
+INCLUDE "macros/indirection.asm"
