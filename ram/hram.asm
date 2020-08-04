@@ -7,6 +7,7 @@ hPushOAM:: ds 5
 hScriptVar:: db
 
 hROMBankBackup:: db
+hSRAMBank:: db
 
 ; TODO: come up with other names for hBuffer
 ; related to home/audio.asm and home/decompress.asm
@@ -205,7 +206,7 @@ ENDU
 
 hCrashCode:: db
 
-	ds 12
+	ds 11
 
 hFunction::
 hFunctionJump::     db ; $c3 jp
