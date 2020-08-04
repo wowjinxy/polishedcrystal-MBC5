@@ -18,3 +18,5 @@ INCLUDE "macros/scripts/gfx_anims.asm"
 if DEF(MONOCHROME)
 INCLUDE "macros/monochrome.asm"
 endc
+
+INCLUDE "macros/wram_16bit.asm"

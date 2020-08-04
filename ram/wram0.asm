@@ -1191,3 +1191,17 @@ wDaysSince:: db
 
 ; Temporary backup for options
 wOptionsBuffer:: db
+
+	ds 7
+
+wTempLoopCounter:: db
+
+	ds 7
+
+wTempLoopCounter:: db
+
+
+SECTION "16-bit WRAM home data", WRAM0
+; align to $20
+
+wConversionTableBitmap:: ds $20

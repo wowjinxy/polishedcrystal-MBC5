@@ -228,6 +228,8 @@ WRAM0
 	"Overworld Map"
 	org $cee0
 	"Video"
+	align 5
+	"16-bit WRAM home data"
 
 WRAMX $1
 	org $d000
