@@ -1263,7 +1263,8 @@ ShiftBoxMon:
 GiveEgg::
 	ld a, [wCurPartySpecies]
 	push af
-	farcall GetLowestEvolutionStage
+	farcall GetPreEvolution
+	farcall GetPreEvolution
 	ld a, [wCurPartySpecies]
 	dec a
 

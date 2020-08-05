@@ -365,9 +365,6 @@ PlacePartyMonEvoStoneCompatibility:
 	ld bc, PARTYMON_STRUCT_LENGTH
 	rst AddNTimes
 	ld e, [hl]
-	call GetPokemonIndexFromID
-	ld de, EvosAttacksPointers - 2
-	add hl, hl
 	; b = form
 	ld a, d
 	ld hl, wPartyMon1Form

@@ -754,7 +754,8 @@ DayCare_InitBreeding:
 
 .GotMother:
 	ld [wCurPartySpecies], a
-	farcall GetLowestEvolutionStage
+	farcall GetPreEvolution
+	farcall GetPreEvolution
 	ld a, EGG_LEVEL
 	ld [wCurPartyLevel], a
 
